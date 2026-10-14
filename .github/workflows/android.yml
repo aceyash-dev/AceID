@@ -1,0 +1,77 @@
+name: Ace ID Android APK
+
+on:
+  push:
+    branches: ["master"]
+    paths: ["mobile/**", ".github/workflows/mobile-ci.yml"]
+  pull_request:
+    branches: ["master"]
+    paths: ["mobile/**", ".github/workflows/mobile-ci.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-and-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+      - uses: subosito/flutter-action@v2
+        name: Set up Flutter
+        with:
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        working-directory: mobile
+        run: flutter pub get
+      - name: Generate app launcher icon
+        working-directory: mobile
+        run: dart run flutter_launcher_icons
+      - name: Format Dart sources
+        working-directory: mobile
+        run: dart format lib test
+      - name: Analyze Dart
+        working-directory: mobile
+        run: flutter analyze --no-fatal-infos
+      - name: Run widget tests
+        working-directory: mobile
+        run: flutter test
+      - name: Validate public OIDC client configuration
+        env:
+          ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
+        shell: bash
+        run: |
+          if [[ -z "${ACEID_MOBILE_CLIENT_ID//[[:space:]]/}" ]]; then
+            echo "::error title=Missing mobile OIDC client::Set ACEID_MOBILE_CLIENT_ID to the registered public OIDC client ID. Do not configure a client secret in the app."
+            exit 1
+          fi
+      - name: Generate Android Gradle wrapper
+        shell: bash
+        run: |
+          flutter create --platforms=android --project-name ace_id_mobile --org cc.acebase --no-pub /tmp/ace-id-mobile-wrapper
+          cp /tmp/ace-id-mobile-wrapper/android/gradlew mobile/android/gradlew
+          cp /tmp/ace-id-mobile-wrapper/android/gradlew.bat mobile/android/gradlew.bat
+          mkdir -p mobile/android/gradle/wrapper
+          cp /tmp/ace-id-mobile-wrapper/android/gradle/wrapper/gradle-wrapper.jar mobile/android/gradle/wrapper/gradle-wrapper.jar
+          chmod +x mobile/android/gradlew
+      - name: Build ABI-specific APKs
+        working-directory: mobile
+        env:
+          ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
+        run: flutter build apk --release --split-per-abi --target-platform android-arm,android-arm64 --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID"
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ace-id-android-apks
+          path: |
+            mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          if-no-files-found: error
+          retention-days: 14
