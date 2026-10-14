@@ -2,11 +2,11 @@ name: Ace ID Android APK
 
 on:
   push:
-    branches: ["master"]
-    paths: ["mobile/**", ".github/workflows/mobile-ci.yml"]
+    branches: ["main"]
+    paths: ["mobile/**", ".github/workflows/android.yml"]
   pull_request:
-    branches: ["master"]
-    paths: ["mobile/**", ".github/workflows/mobile-ci.yml"]
+    branches: ["main"]
+    paths: ["mobile/**", ".github/workflows/android.yml"]
   workflow_dispatch:
 
 permissions:
