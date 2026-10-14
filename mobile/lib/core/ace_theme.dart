@@ -6,8 +6,8 @@ class AceTheme {
   static const milk = Color(0xFFF5F5F2);
   static const ink = Color(0xFF111111);
   static const line = Color(0xFFD1D1CC);
-  static const orange = Color(0xFFB85D32);
-  static const danger = Color(0xFFB42318);
+  static const accent = Color(0xFF111111);
+  static const danger = Color(0xFF555555);
 
   static ThemeData get light => _build(Brightness.light);
   static ThemeData get dark => _build(Brightness.dark);
@@ -19,8 +19,8 @@ class AceTheme {
     final panel = dark ? const Color(0xFF20201D) : Colors.white;
     final border = dark ? const Color(0xFF41413B) : line;
     final scheme = ColorScheme.fromSeed(
-      seedColor: orange, brightness: brightness,
-      primary: dark ? const Color(0xFFE29A72) : orange,
+      seedColor: accent, brightness: brightness,
+      primary: dark ? const Color(0xFFF5F5F2) : accent,
       onPrimary: dark ? ink : Colors.white,
       surface: bg, onSurface: fg, error: danger,
     );
@@ -60,7 +60,7 @@ class AceTheme {
       )),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: panel,
-        indicatorColor: dark ? const Color(0xFF4A3025) : const Color(0xFFF1DFD5),
+        indicatorColor: dark ? const Color(0xFF41413B) : const Color(0xFFE5E5E0),
         labelTextStyle: WidgetStatePropertyAll(text.labelSmall?.copyWith(fontWeight: FontWeight.w700)),
       ),
     );
