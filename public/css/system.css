@@ -1,0 +1,114 @@
+*, *::before, *::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/InstrumentSerif-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+.ace-page {
+  font-family: "Satoshi", sans-serif;
+  color: var(--ace-fg);
+  background: var(--ace-bg);
+}
+
+.ace-page h1.ace-display,
+.ace-page h2.ace-display,
+.ace-display {
+  font-family: "Instrument Serif", serif;
+  font-weight: 400;
+  letter-spacing: -.045em;
+}
+
+.ace-page button,
+.ace-page input,
+.ace-page select,
+.ace-page textarea {
+  font: inherit;
+}
+
+.ace-page button:focus-visible,
+.ace-page a:focus-visible,
+.ace-page input:focus-visible,
+.ace-page select:focus-visible,
+.ace-page textarea:focus-visible {
+  outline: 2px solid var(--ace-fg);
+  outline-offset: 3px;
+  box-shadow: var(--ace-focus-ring);
+}
+
+.ace-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--ace-fg);
+  border-radius: var(--ace-radius);
+  background: var(--ace-fg);
+  color: var(--ace-surface);
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background var(--ace-motion-fast), opacity var(--ace-motion-fast);
+}
+.ace-button:hover:not(:disabled) { background: #2a2a2a; }
+.ace-button:disabled { opacity: .45; cursor: not-allowed; }
+
+.ace-card {
+  border: 1px solid var(--ace-line);
+  border-radius: var(--ace-radius);
+  background: var(--ace-surface);
+  box-shadow: var(--ace-shadow-soft);
+}
+
+.ace-status {
+  min-height: 18px;
+  color: var(--ace-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.ace-status.error { color: var(--ace-danger); }
+.ace-status.success { color: var(--ace-success); }
+
+
+/* Shared text-selection and scrollbar treatment. */
+.ace-page,
+.ace-page * {
+  scrollbar-color: var(--ace-fg) transparent;
+  scrollbar-width: thin;
+}
+.ace-page ::selection {
+  background: var(--ace-fg);
+  color: var(--ace-surface);
+}
+.ace-page ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.ace-page ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ace-page ::-webkit-scrollbar-thumb {
+  background: var(--ace-fg);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.ace-page ::-webkit-scrollbar-thumb:hover {
+  background: #444;
+  background-clip: padding-box;
+}
