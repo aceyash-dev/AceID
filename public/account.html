@@ -1,0 +1,5259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f2">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="description" content="Manage Ace ID, sessions, connected services, password, and security settings.">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/system.css">
+  <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon.png">
+  <link rel="apple-touch-icon" href="/icon.png">
+  <link rel="preconnect" href="https://code.iconify.design" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <title>Ace ID · Profile</title>
+
+  <script
+    src="https://code.iconify.design/iconify-icon/3.0.3/iconify-icon.min.js"
+    defer
+  ></script>
+
+  <style>
+    @font-face {
+      font-family: "Satoshi";
+      src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 300 900;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Instrument Serif";
+      src: url("/fonts/InstrumentSerif-Regular.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    :root {
+      --bg: #f5f5f2;
+      --fg: #111;
+      --muted: #70706b;
+      --line: #d1d1cc;
+      --surface: #fff;
+      --soft: #f0f0ec;
+      --danger: #b42318;
+      --danger-bg: #fff5f4;
+      --success: #176b3a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Satoshi", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    *, *::before, *::after {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    input, textarea {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+
+    a, button, .brand, .eyebrow {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    a { color: inherit; }
+    button, input { font: inherit; }
+    button { border-radius: 0; }
+    img { display: block; }
+
+    .page {
+      width: min(920px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 46px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 750;
+      letter-spacing: -.035em;
+    }
+
+    .brand img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+
+    .logout,
+    .edit-button,
+    .save-button,
+    .cancel-button,
+    .delete-button,
+    .verify-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 750;
+      transition:
+        background .15s ease,
+        border-color .15s ease,
+        color .15s ease,
+        opacity .15s ease;
+    }
+
+
+    /* Premium interaction layer */
+    .profile-card,
+    .password-zone,
+    .devices-zone,
+    .danger-zone {
+
+      box-shadow: 0 8px 28px rgba(17,17,17,.05);
+      overflow: hidden;
+    }
+
+    .profile-card,
+    .password-zone,
+    .devices-zone,
+    .danger-zone,
+    .edit-panel,
+    .account-field,
+    .device-card,
+    .modal,
+    .switcher {
+      transition:
+        box-shadow .18s ease,
+        border-color .18s ease,
+        background .18s ease,
+        transform .12s ease;
+    }
+
+    .profile-card:hover,
+    .password-zone:hover,
+    .devices-zone:hover {
+      box-shadow: 0 12px 34px rgba(17,17,17,.07);
+    }
+
+    .account-field:hover {
+      background: #fcfcfa;
+    }
+
+    .field input,
+    .password-field input,
+    .devices-password input,
+    .confirm-input,
+    .avatar-actions input {
+
+      min-height: 50px;
+    }
+
+    .field input:focus,
+    .password-field input:focus,
+    .devices-password input:focus,
+    .confirm-input:focus,
+    .avatar-actions input:focus {
+      box-shadow: 0 0 0 3px rgba(17,17,17,.07);
+    }
+
+    button,
+    .switch-account,
+    .logout,
+    .device-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .device-trust {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid #111;
+      background: #fff;
+      color: #111;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .device-trust:hover {
+      background: #f0f0ec;
+    }
+
+    .device-trust:disabled,
+    .device-logout:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    .device-logout {
+
+      transition:
+        transform .08s ease,
+        background .15s ease,
+        border-color .15s ease,
+        color .15s ease,
+        opacity .15s ease;
+    }
+
+    button:active,
+    .switch-account:active,
+    .logout:active,
+    .device-logout:active {
+      transform: scale(.985);
+    }
+
+    .edit-panel.active,
+    .accordion-panel.active {
+      animation: accountPanelIn .17s ease both;
+    }
+
+    @keyframes accountPanelIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-backdrop {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity .18s ease, visibility .18s ease;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      transform: translateY(10px) scale(.985);
+      transition: transform .18s ease;
+      box-shadow: 0 24px 80px rgba(17,17,17,.16);
+
+    }
+
+    .modal-backdrop.active .modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .switcher-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(17,17,17,.34);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .switcher-backdrop.active {
+      display: flex;
+    }
+
+    .switcher {
+      width: min(460px, 100%);
+      overflow: hidden;
+      border: 1px solid #111;
+
+      background: #fff;
+      box-shadow: 0 24px 80px rgba(17,17,17,.16);
+      animation: accountSwitcherIn .18s ease both;
+    }
+
+    @keyframes accountSwitcherIn {
+      from { opacity: 0; transform: translateY(8px) scale(.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .switcher-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .switcher-title {
+      margin: 0;
+      font-family: "Instrument Serif", serif;
+      font-size: 30px;
+      font-weight: 400;
+      line-height: .95;
+      letter-spacing: -.04em;
+    }
+
+    .switcher-description {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .switcher-close {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #111;
+      cursor: pointer;
+    }
+
+    .account-choices {
+      display: grid;
+      gap: 6px;
+      max-height: min(55vh, 420px);
+      overflow: auto;
+      padding: 10px;
+    }
+
+    .account-choice {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 12px;
+      border: 1px solid transparent;
+
+      background: transparent;
+      color: var(--fg);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .account-choice:hover,
+    .account-choice:focus-visible {
+      border-color: var(--line);
+      background: #fafaf8;
+      outline: none;
+    }
+
+    .account-choice.current {
+      border-color: #111;
+      background: #f6f6f2;
+    }
+
+    .account-choice-avatar {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      border: 1px solid #111;
+
+      background: var(--soft);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .account-choice-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .account-choice-copy {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .account-choice-name {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .account-choice-meta {
+      display: block;
+      margin-top: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .account-choice-check {
+      flex: 0 0 auto;
+      color: var(--success);
+      font-size: 17px;
+    }
+
+    .switcher-footer {
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .add-account-button {
+      width: 100%;
+      height: 44px;
+      border: 1px solid #111;
+      background: #111;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .device-card {
+      align-items: flex-start;
+
+      box-shadow: 0 1px 0 rgba(17,17,17,.03);
+    }
+
+    .device-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .device-kind {
+      display: inline-flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .device-ip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 7px;
+      color: var(--fg);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .device-ip code {
+      padding: 3px 6px;
+      border: 1px solid var(--line);
+
+      background: #fff;
+      font: inherit;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .device-last-active {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .login-log-moved-trigger {
+      display: none;
+    }
+
+    .login-log-sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 220;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+      background: rgba(17,17,17,.28);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .18s ease, visibility .18s ease;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    .login-log-sheet-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .login-log-sheet {
+      width: min(680px, 100%);
+      max-height: min(78vh, 680px);
+      overflow: hidden;
+      border: 1px solid #111;
+      border-bottom: 0;
+      background: #fff;
+      box-shadow: 0 -20px 70px rgba(17,17,17,.16);
+      transform: translateY(100%);
+      transition: transform .22s cubic-bezier(.2,.8,.2,1);
+    }
+
+    .login-log-sheet-backdrop.active .login-log-sheet {
+      transform: translateY(0);
+    }
+
+    .login-log-sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .login-log-sheet-title {
+      margin: 0;
+      font-family: "Instrument Serif", serif;
+      font-size: 30px;
+      font-weight: 400;
+      line-height: .95;
+      letter-spacing: -.04em;
+    }
+
+    .login-log-sheet-description {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .login-log-sheet-close {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #111;
+      cursor: pointer;
+    }
+
+    .account-log-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 10px 10px 0;
+    }
+
+    .account-log-filter {
+      min-height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--fg);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .account-log-filter:hover,
+    .account-log-filter.active {
+      border-color: #111;
+      background: #111;
+      color: #fff;
+    }
+
+    .account-log-filter:focus-visible {
+      outline: 2px solid #111;
+      outline-offset: 2px;
+    }
+
+    .login-log-sheet-body {
+      max-height: calc(min(78vh, 680px) - 91px);
+      overflow: auto;
+      padding: 10px;
+    }
+
+    .login-log-sheet-body .service-list {
+      border: 0;
+    }
+
+    .login-log-sheet-body .login-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .login-log-sheet-body .login-row:last-child {
+      border-bottom: 0;
+    }
+
+    .login-log-sheet-body .login-copy {
+      min-width: 0;
+      display: grid;
+      gap: 3px;
+    }
+
+    .login-log-sheet-body .login-name {
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .login-log-sheet-body .login-time,
+    .login-log-sheet-body .login-details,
+    .login-log-sheet-body .login-location {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-button svg {
+      display: block;
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      overflow: visible;
+      color: currentColor;
+    }
+
+    .icon-button iconify-icon {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      font-size: 18px;
+      line-height: 1;
+      flex: 0 0 18px;
+      color: currentColor;
+      vertical-align: middle;
+    }
+
+    .account-tab iconify-icon,
+    .qr-scan-fab iconify-icon {
+      display: inline-block;
+      line-height: 1;
+      color: currentColor;
+    }
+
+    .icon-button {
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .icon-button {
+        width: 42px;
+        height: 42px;
+        padding: 0;
+      }
+
+      .icon-button span {
+        display: none;
+      }
+
+      .topbar-actions {
+        gap: 6px;
+      }
+    }
+
+    .service-access-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .service-access-link:hover {
+      background: #fff;
+      border-color: #111;
+    }
+
+    .switch-account {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .switch-account:hover {
+      background: #fff;
+      border-color: #111;
+    }
+
+    .logout {
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--fg);
+    }
+
+    .logout:hover {
+      background: #fff;
+      border-color: #111;
+    }
+
+    .header { margin-bottom: 28px; }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 10px 0 8px;
+      font-family: "Instrument Serif", serif;
+      font-size: clamp(48px, 7vw, 76px);
+      font-weight: 400;
+      line-height: .88;
+      letter-spacing: -.05em;
+    }
+
+    .subtitle {
+      max-width: 600px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .profile-card {
+      border: 1px solid #111;
+      background: var(--surface);
+    }
+
+    .profile-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .identity {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .avatar {
+      position: relative;
+      flex: 0 0 auto;
+      width: 76px;
+      height: 76px;
+      overflow: hidden;
+      border: 1px solid #111;
+      background: var(--soft);
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: var(--soft);
+    }
+
+    .avatar-fallback {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+      font-weight: 750;
+      letter-spacing: -.05em;
+    }
+
+    .identity-copy { min-width: 0; }
+
+    .identity-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 20px;
+      font-weight: 750;
+      letter-spacing: -.035em;
+    }
+
+    .identity-username {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 550;
+    }
+
+    .edit-button,
+    .save-button {
+      height: 44px;
+      padding: 0 16px;
+      border: 1px solid #111;
+      background: #111;
+      color: #fff;
+    }
+
+    .edit-button:hover,
+    .save-button:hover {
+      background: #303030;
+    }
+
+    .cancel-button {
+      height: 44px;
+      padding: 0 16px;
+      border: 1px solid #111;
+      background: #fff;
+      color: #111;
+    }
+
+    .cancel-button:hover { background: var(--soft); }
+
+    .save-button:disabled,
+    .edit-button:disabled,
+    .cancel-button:disabled,
+    .verify-button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    .account-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .account-field {
+      min-width: 0;
+      padding: 22px 28px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .account-field:nth-child(odd) {
+      border-right: 1px solid var(--line);
+    }
+
+    .account-field:last-child,
+    .account-field:nth-last-child(2) {
+      border-bottom: 0;
+    }
+
+    .field-label {
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .field-value {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .field-value.muted { color: var(--muted); }
+
+    .field-value-with-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .field-copy-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex: 0 0 auto;
+      min-height: 34px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #111;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .field-copy-button:hover,
+    .field-copy-button:focus-visible {
+      border-color: #111;
+      background: #f8f8f5;
+    }
+
+    .field-copy-button i {
+      font-size: 15px;
+    }
+
+    .field-helper-inline {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .security-passkey-button {
+      width: 100%;
+      min-height: 50px;
+      justify-content: center;
+    }
+
+    .security-modal-hint {
+      max-width: 52ch;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .security-action-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 4px 0 12px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .security-action-divider::before,
+    .security-action-divider::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: var(--line);
+    }
+
+    .security-action-divider.hidden {
+      display: none;
+    }
+
+    @media (max-width: 650px) {
+      .field-copy-button span { display: none; }
+      .field-copy-button { width: 36px; padding: 0; }
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .verified,
+    .unverified,
+    .checking,
+    .available,
+    .taken {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .verified,
+    .available { color: var(--success); }
+
+    .unverified,
+    .checking,
+    .taken { color: var(--muted); }
+
+    .verify-button {
+      min-height: 32px;
+      padding: 0 10px;
+      border: 1px solid #111;
+      background: #111;
+      color: #fff;
+    }
+
+    .verify-button:hover { background: #303030; }
+
+    .edit-panel {
+      display: none;
+      padding: 28px;
+      border-top: 1px solid #111;
+      background: #fafaf8;
+    }
+
+    .edit-panel.active { display: block; }
+
+    .edit-heading { margin-bottom: 22px; }
+
+    .edit-heading h2 {
+      margin: 7px 0 5px;
+      font-family: "Instrument Serif", serif;
+      font-size: 34px;
+      font-weight: 400;
+      line-height: .95;
+      letter-spacing: -.04em;
+    }
+
+    .edit-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .avatar-editor {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .avatar-editor .avatar {
+      width: 88px;
+      height: 88px;
+    }
+
+    .avatar-actions {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .avatar-actions label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .avatar-actions input {
+      width: 100%;
+      height: 46px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+
+      outline: none;
+      background: #fff;
+      color: #111;
+      font-size: 13px;
+    }
+
+    .avatar-actions input:hover,
+    .field input:hover { border-color: #999; }
+
+    .avatar-actions input:focus,
+    .field input:focus {
+      border-color: #111;
+      box-shadow: 0 0 0 1px #111;
+    }
+
+    .helper {
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field { min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      height: 50px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+
+      outline: none;
+      background: #fff;
+      color: #111;
+      font-size: 14px;
+      font-weight: 550;
+    }
+
+    .field input:disabled {
+      background: #eeeeea;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .field-status {
+      min-height: 19px;
+      margin-top: 6px;
+    }
+
+    .edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+
+    #qrApprovalFab { display: none !important; }
+
+    .qr-scan-fab{position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));z-index:210;display:none;place-items:center;width:56px;height:56px;padding:0;border:1px solid #111;border-radius:50%;background:#111;color:#fff;box-shadow:0 8px 22px rgba(17,17,17,.16);cursor:pointer}
+    .qr-scan-fab:hover{transform:translateY(-2px)}
+    .qr-scanner-backdrop{position:fixed;inset:0;z-index:260;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(17,17,17,.56);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .18s ease,visibility .18s ease}
+    .qr-scanner-backdrop.active{opacity:1;visibility:visible;pointer-events:auto}
+    .qr-scanner{width:min(440px,100%);overflow:hidden;border:1px solid #111;background:#fff;box-shadow:0 28px 90px rgba(17,17,17,.24);transform:translateY(10px) scale(.985);transition:transform .2s ease}
+    .qr-scanner-backdrop.active .qr-scanner{transform:translateY(0) scale(1)}
+    .qr-scanner-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:18px 20px;border-bottom:1px solid var(--line)}
+    .qr-scanner-title{margin:0;font-family:"Instrument Serif",serif;font-size:32px;font-weight:400;line-height:.95;letter-spacing:-.04em}
+    .qr-scanner-copy{margin:6px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+    .qr-scanner-close{display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--line);background:#fff;color:#111;cursor:pointer}
+    .qr-camera{position:relative;aspect-ratio:1/1;margin:18px;overflow:hidden;border:1px solid #111;background:#111}
+    .qr-camera video{width:100%;height:100%;display:block;object-fit:cover}
+    .qr-camera-frame{position:absolute;inset:15%;border:2px solid rgba(255,255,255,.9);box-shadow:0 0 0 999px rgba(0,0,0,.20);pointer-events:none}
+    .qr-scanner-status{min-height:38px;margin:0 18px 18px;color:var(--muted);font-size:11px;line-height:1.5}.qr-scanner-status.error{color:var(--danger)}
+    @media(max-width:900px){.qr-scan-fab{display:grid}}
+    @media(min-width:901px){.qr-scan-fab{display:none!important}}
+    @media(max-width:650px){.qr-scanner-backdrop{align-items:flex-end;padding:0}.qr-scanner{width:100%;border-bottom:0}}
+    @media(prefers-reduced-motion:reduce){.qr-scan-fab,.qr-scanner-backdrop,.qr-scanner{transition:none!important;animation:none!important}}
+    
+    .settings-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 38px 0 14px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .settings-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    .settings-group {
+      display: grid;
+      gap: 12px;
+    }
+
+    .password-zone,
+    .devices-zone {
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .accordion-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 20px 28px;
+      border: 0;
+      background: transparent;
+      color: var(--fg);
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .accordion-trigger:hover {
+      background: #fafaf8;
+    }
+
+    .accordion-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .accordion-heading iconify-icon {
+      flex: 0 0 auto;
+      font-size: 17px;
+    }
+
+    .accordion-copy {
+      min-width: 0;
+    }
+
+    .accordion-title {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .accordion-summary {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .accordion-chevron {
+      flex: 0 0 auto;
+      font-size: 17px;
+      transition: transform .16s ease;
+    }
+
+    .accordion-trigger[aria-expanded="true"] .accordion-chevron {
+      transform: rotate(180deg);
+    }
+
+    .accordion-panel {
+      display: none;
+      border-top: 1px solid var(--line);
+    }
+
+    .accordion-panel.active {
+      display: block;
+    }
+
+    .password-content {
+      padding: 24px 28px;
+    }
+
+    .password-title {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .password-description {
+      max-width: 650px;
+      margin: 8px 0 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .password-form {
+      display: grid;
+      gap: 14px;
+      max-width: 560px;
+    }
+
+    .password-field label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .password-input-wrap {
+      position: relative;
+    }
+
+    .password-input-wrap input {
+      padding-right: 48px;
+    }
+
+    .password-reveal {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transform: translateY(-50%);
+    }
+
+    .password-reveal:hover {
+      color: var(--fg);
+    }
+
+    .password-field input {
+      width: 100%;
+      height: 50px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+
+      outline: none;
+      background: #fff;
+      color: #111;
+      font-size: 14px;
+      font-weight: 550;
+    }
+
+    .password-field input:hover {
+      border-color: #999;
+    }
+
+    .password-field input:focus {
+      border-color: #111;
+      box-shadow: 0 0 0 1px #111;
+    }
+
+    .password-status {
+      min-height: 18px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .password-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 2px;
+    }
+
+    .password-button {
+      height: 44px;
+      padding: 0 16px;
+      border: 1px solid #111;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .password-button:hover {
+      background: #303030;
+    }
+
+    .password-button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    .password-locked {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .password-locked iconify-icon {
+      flex: 0 0 auto;
+      margin-top: 2px;
+      font-size: 16px;
+    }
+
+    .service-access-zone {
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .service-access-content {
+      padding: 24px 28px;
+    }
+
+    .service-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .service-row,
+    .login-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 62px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: #fafaf8;
+    }
+
+    .service-icon,
+    .login-icon {
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .service-icon img,
+    .login-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .service-icon iconify-icon,
+    .login-icon iconify-icon {
+      font-size: 18px;
+    }
+
+    .service-copy,
+    .login-copy {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .service-name,
+    .login-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .service-time,
+    .login-time {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .service-revoke {
+      flex: 0 0 auto;
+      min-height: 36px;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--fg);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .service-revoke:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .service-revoke:disabled {
+      opacity: .45;
+      cursor: wait;
+    }
+
+    .service-empty {
+      padding: 14px 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .devices-content {
+      padding: 24px 28px;
+    }
+
+    .devices-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .device-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: #fafaf8;
+    }
+
+    .device-main {
+      min-width: 0;
+    }
+
+    .device-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .device-meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .device-card.current {
+      border-color: #111;
+      box-shadow: 0 8px 24px rgba(17,17,17,.06);
+    }
+
+    .device-current {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 7px;
+      color: var(--success);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .device-logout {
+      flex: 0 0 auto;
+      min-height: 36px;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--fg);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .device-logout:hover {
+      border-color: #111;
+      background: var(--soft);
+    }
+
+    .device-logout:disabled {
+      opacity: .45;
+      cursor: wait;
+    }
+
+    .devices-empty,
+    .devices-note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .devices-note {
+      margin-bottom: 14px;
+    }
+
+    .devices-password {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .devices-password input {
+      flex: 1;
+      min-width: 0;
+      height: 46px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+
+      outline: none;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .devices-password button {
+      height: 46px;
+      padding: 0 13px;
+      border: 1px solid #111;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .devices-status {
+      min-height: 18px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .danger-zone {
+      margin-top: 20px;
+      border: 1px solid var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .danger-content { padding: 24px 28px; }
+
+    .danger-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--danger);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .danger-description {
+      max-width: 650px;
+      margin: 8px 0 18px;
+      color: #6d2a26;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .delete-button {
+      height: 42px;
+      padding: 0 14px;
+      border: 1px solid var(--danger);
+      background: transparent;
+      color: var(--danger);
+    }
+
+    .delete-button:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(17, 17, 17, .42);
+    }
+
+    .modal-backdrop.active { display: flex; }
+
+    .modal {
+      width: min(440px, 100%);
+      border: 1px solid #111;
+      background: #fff;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .16);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-title {
+      margin: 0;
+      font-family: "Instrument Serif", serif;
+      font-size: 32px;
+      font-weight: 400;
+      line-height: .95;
+      letter-spacing: -.04em;
+    }
+
+    .modal-description {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .modal-close {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #111;
+      cursor: pointer;
+    }
+
+    .modal-body { padding: 24px; }
+
+    .confirm-label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .confirm-input {
+      width: 100%;
+      height: 48px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+
+      outline: none;
+      background: #fff;
+      color: #111;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+
+    .confirm-input:focus {
+      border-color: #111;
+      box-shadow: 0 0 0 1px #111;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 18px;
+    }
+
+    .confirm-delete {
+      height: 44px;
+      padding: 0 15px;
+      border: 1px solid var(--danger);
+      background: var(--danger);
+      color: #fff;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .confirm-delete:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .security-modal-field {
+      margin-bottom: 14px;
+    }
+
+    .security-modal-status {
+      min-height: 18px;
+      margin-top: 2px;
+      color: var(--danger);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .security-action-modal {
+      width: min(480px, 100%);
+    }
+
+    .security-action-modal .modal-body {
+      display: grid;
+      gap: 2px;
+    }
+
+    .snackbar-stack {
+      position: fixed;
+      left: 50%;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      z-index: 260;
+      width: min(420px, calc(100vw - 32px));
+      height: 0;
+      pointer-events: none;
+      transform: translateX(-50%);
+      isolation: isolate;
+    }
+
+    .snackbar-item {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: max-content;
+      max-width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #111;
+      background: #111;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 550;
+      line-height: 1.4;
+      text-align: center;
+      overflow-wrap: anywhere;
+      box-shadow: 0 10px 28px rgba(17,17,17,.16);
+      transform: translate(-50%, 10px) scale(.96);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform .22s cubic-bezier(.2,.8,.2,1), opacity .18s ease, visibility .18s ease;
+      will-change: transform, opacity;
+    }
+
+    .snackbar-item.is-visible { visibility: visible; opacity: 1; }
+
+    .snackbar-item[data-depth="0"] { z-index: 4; transform: translate(-50%, 0) scale(1); }
+    .snackbar-item[data-depth="1"] { z-index: 3; transform: translate(-50%, -10px) scale(.96); opacity: .72; }
+    .snackbar-item[data-depth="2"] { z-index: 2; transform: translate(-50%, -19px) scale(.92); opacity: .42; }
+    .snackbar-item[data-depth="3"] { z-index: 1; transform: translate(-50%, -27px) scale(.88); opacity: .18; }
+
+    @media (max-width: 650px) {
+      .snackbar-stack {
+        bottom: max(18px, env(safe-area-inset-bottom));
+        width: calc(100vw - 24px);
+      }
+
+      .snackbar-item {
+        max-width: calc(100vw - 32px);
+        padding: 11px 14px;
+      }
+    }
+
+    .loading {
+      min-height: 60vh;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 650px) {
+      .page { padding: 22px 16px 48px; }
+      .topbar { margin-bottom: 36px; }
+
+      .profile-top {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 22px 20px;
+      }
+
+      .profile-top .edit-button { width: 100%; }
+      .account-fields { grid-template-columns: 1fr; }
+
+      .account-field {
+        padding: 19px 20px;
+        border-right: 0 !important;
+        border-bottom: 1px solid var(--line) !important;
+      }
+
+      .account-field:last-child { border-bottom: 0 !important; }
+      .edit-panel { padding: 22px 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+
+      .avatar-editor {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .avatar-actions { width: 100%; }
+      .edit-actions { flex-direction: column-reverse; }
+      .edit-actions button { width: 100%; }
+      .accordion-trigger,
+      .password-content,
+      .service-access-content,
+      .devices-content,
+      .danger-content { padding: 20px; }
+
+      .devices-password {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .devices-password input,
+      .devices-password button {
+        width: 100%;
+      }
+
+      .device-card {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .device-logout {
+        width: 100%;
+      }
+
+      .mfa-content {
+        padding: 18px 16px 20px;
+      }
+
+      .mfa-status {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+      }
+
+      .mfa-status-indicator {
+        align-items: flex-start;
+      }
+
+      .mfa-retry {
+        min-height: 36px;
+      }
+
+      .mfa-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .mfa-actions .mfa-button {
+        width: 100%;
+      }
+
+      .mfa-setup {
+        padding: 16px;
+      }
+
+      .mfa-qr-wrap {
+        width: min(100%, 220px);
+        margin-inline: auto;
+      }
+
+      .mfa-qr {
+        width: 100%;
+        height: auto;
+      }
+
+      .mfa-secret-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .mfa-secret {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .mfa-copy {
+        width: 100%;
+        min-height: 40px;
+      }
+
+      #mfaSetupCode {
+        width: 100%;
+        min-height: 50px;
+        text-align: center;
+        font-size: 20px;
+        letter-spacing: .16em;
+      }
+
+      .mfa-code-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .mfa-code-actions .mfa-button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .identity { gap: 13px; }
+      .avatar { width: 64px; height: 64px; }
+      .identity-name { font-size: 17px; }
+
+      .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .modal { width: 100%; }
+      .snackbar { bottom: 16px; }
+    }
+
+    /* Pixel geometry is intentionally limited to sheets and the QR FAB. */
+    .login-log-sheet {
+      clip-path: polygon(
+        0 7px, 7px 7px, 7px 0,
+        calc(100% - 7px) 0, calc(100% - 7px) 7px, 100% 7px,
+        100% calc(100% - 7px), calc(100% - 7px) calc(100% - 7px),
+        calc(100% - 7px) 100%, 7px 100%, 7px calc(100% - 7px),
+        0 calc(100% - 7px)
+      );
+    }
+
+    .qr-scan-fab {
+      border-radius: 0;
+      clip-path: polygon(
+        0 7px, 7px 7px, 7px 0,
+        calc(100% - 7px) 0, calc(100% - 7px) 7px, 100% 7px,
+        100% calc(100% - 7px), calc(100% - 7px) calc(100% - 7px),
+        calc(100% - 7px) 100%, 7px 100%, 7px calc(100% - 7px),
+        0 calc(100% - 7px)
+      );
+    }
+
+    .qr-scan-fab::before {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      pointer-events: none;
+      border: 1px solid rgba(255,255,255,.2);
+    }
+
+    .qr-scanner-video {
+      border: 0;
+    }
+
+    .qr-scanner-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 18px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* Final floating navigation geometry: stepped surfaces and a real gap before the QR FAB. */
+    .account-tabs,
+    .account-tab,
+    .qr-scan-fab {
+      border-radius: 0 !important;
+      -webkit-border-radius: 0 !important;
+    }
+
+    .account-tabs {
+      overflow: hidden;
+    }
+
+    .account-tabs {
+      clip-path: polygon(
+        0 9px, 9px 9px, 9px 0,
+        calc(100% - 9px) 0, calc(100% - 9px) 9px, 100% 9px,
+        100% calc(100% - 9px), calc(100% - 9px) calc(100% - 9px),
+        calc(100% - 9px) 100%, 9px 100%, 9px calc(100% - 9px),
+        0 calc(100% - 9px)
+      );
+    }
+
+    .account-tab.active,
+    .account-tab[aria-current="page"] {
+      box-shadow:
+        inset 0 0 0 1px rgba(17,17,17,.16),
+        inset 0 3px 0 rgba(17,17,17,.10),
+        inset 0 -4px 0 rgba(255,255,255,.72);
+    }
+
+    .qr-scan-fab {
+      clip-path: polygon(
+        0 8px, 8px 8px, 8px 0,
+        calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px,
+        100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px),
+        calc(100% - 8px) 100%, 8px 100%, 8px calc(100% - 8px),
+        0 calc(100% - 8px)
+      );
+    }
+
+    @media (max-width: 650px) {
+      .account-tabs {
+        left: calc(50% - 34px);
+        right: auto;
+        width: min(390px, calc(100vw - 100px));
+        transform: translateX(-50%);
+      }
+
+      .qr-scan-fab {
+        right: max(14px, env(safe-area-inset-right));
+        bottom: max(14px, env(safe-area-inset-bottom));
+        width: 52px;
+        min-width: 52px;
+        height: 52px;
+        min-height: 52px;
+        padding: 0;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .account-tabs {
+        left: calc(50% - 30px);
+        width: min(350px, calc(100vw - 88px));
+      }
+    }
+
+    /* Account routes expose only their own section. */
+    @view-transition {
+      navigation: auto;
+    }
+
+    body[data-account-page="profile"] .security-divider,
+    body[data-account-page="profile"] .account-security-group,
+    body[data-account-page="profile"] .account-security-extra,
+    body[data-account-page="security"] .profile-divider,
+    body[data-account-page="security"] #profile-card,
+    body[data-account-page="security"] .account-security-group > .devices-zone,
+    body[data-account-page="devices"] .profile-divider,
+    body[data-account-page="devices"] #profile-card,
+    body[data-account-page="devices"] .account-security-group > :not(.devices-zone),
+    body[data-account-page="devices"] .account-security-extra,
+    body[data-account-page="danger"] .profile-divider,
+    body[data-account-page="danger"] #profile-card,
+    body[data-account-page="danger"] .account-security-group {
+      display: none !important;
+    }
+
+    body[data-account-page="devices"] .security-divider {
+      display: block !important;
+    }
+
+    .account-tab {
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .account-tab[aria-current="page"] {
+      background: #111;
+      color: #fff;
+    }
+
+    .account-tabs {
+      position: fixed;
+      left: 50%;
+      bottom: max(18px, env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      z-index: 170;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      width: min(390px, calc(100vw - 100px));
+      margin: 0;
+      border: 2px solid #111;
+      background: #111;
+      border-radius: 0;
+      clip-path: polygon(
+        0 9px, 9px 9px, 9px 0,
+        calc(100% - 9px) 0, calc(100% - 9px) 9px, 100% 9px,
+        100% calc(100% - 9px), calc(100% - 9px) calc(100% - 9px),
+        calc(100% - 9px) 100%, 9px 100%, 9px calc(100% - 9px),
+        0 calc(100% - 9px)
+      );
+      padding: 4px;
+      box-shadow: 0 12px 32px rgba(17,17,17,.18);
+    }
+
+    .account-tab {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+      text-align: center;
+      transition:
+        background-color .22s ease,
+        color .22s ease,
+        transform .22s ease,
+        opacity .22s ease;
+    }
+
+    .account-tab iconify-icon,
+    .account-tab span {
+      transition: color .22s ease, opacity .22s ease, transform .22s ease;
+    }
+
+    .account-tab:hover {
+      background: #252525;
+      color: #fff;
+    }
+
+    .account-tab.active,
+    .account-tab[aria-current="page"] {
+      background: #fff;
+      color: #111;
+      clip-path: polygon(
+        0 6px, 6px 6px, 6px 0,
+        calc(100% - 6px) 0, calc(100% - 6px) 6px, 100% 6px,
+        100% calc(100% - 6px), calc(100% - 6px) calc(100% - 6px),
+        calc(100% - 6px) 100%, 6px 100%, 6px calc(100% - 6px),
+        0 calc(100% - 6px)
+      );
+      box-shadow: inset 0 0 0 2px rgba(17,17,17,.12), inset 0 -5px 0 rgba(17,17,17,.08);
+    }
+
+    .account-tab.active iconify-icon,
+    .account-tab.active span,
+    .account-tab[aria-current="page"] iconify-icon,
+    .account-tab[aria-current="page"] span {
+      color: #111;
+      opacity: 1;
+    }
+
+    .account-tab:active {
+      transform: none;
+    }
+
+    .account-tab:focus-visible {
+      position: relative;
+      z-index: 1;
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+
+    .account-tab iconify-icon {
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      font-size: 18px;
+    }
+
+    .account-tab span {
+      display: inline;
+    }
+
+    .qr-scan-fab {
+      z-index: 180;
+      width: 58px;
+      min-width: 58px;
+      height: 58px;
+      min-height: 58px;
+      padding: 0;
+      border-radius: 999px;
+    }
+
+    @media (max-width: 650px) {
+      .page {
+        padding-bottom: calc(132px + env(safe-area-inset-bottom));
+      }
+
+      .account-tabs {
+        width: calc(100vw - 172px);
+        left: max(12px, env(safe-area-inset-left));
+        right: calc(52px + 32px + env(safe-area-inset-right));
+        transform: none;
+        bottom: max(12px, env(safe-area-inset-bottom));
+        padding: 4px;
+      }
+
+      .account-tab {
+        min-height: 48px;
+        padding: 0 7px;
+      }
+
+      .account-tab span {
+        display: none;
+      }
+
+      .account-tab[aria-current="page"] span,
+      .account-tab.active span {
+        display: inline;
+      }
+
+      .account-tab[aria-current="page"],
+      .account-tab.active {
+        gap: 6px;
+      }
+
+      .qr-scan-fab {
+        right: max(14px, env(safe-area-inset-right));
+        bottom: max(14px, env(safe-area-inset-bottom));
+      }
+    }
+
+    @media (max-width: 380px) {
+      .page {
+        padding-bottom: calc(124px + env(safe-area-inset-bottom));
+      }
+
+      .account-tabs {
+        width: auto;
+        left: max(10px, env(safe-area-inset-left));
+        right: calc(52px + 28px + env(safe-area-inset-right));
+        padding: 3px;
+      }
+
+      .account-tab {
+        min-height: 46px;
+        padding: 0 5px;
+      }
+
+      .account-tab iconify-icon {
+        font-size: 17px;
+      }
+
+      .qr-scan-fab {
+        width: 52px;
+        min-width: 52px;
+        height: 52px;
+        min-height: 52px;
+      }
+    }
+    .qr-scan-fab {
+      position: fixed;
+      right: max(18px, env(safe-area-inset-right));
+      bottom: max(18px, env(safe-area-inset-bottom));
+      z-index: 180;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 54px;
+      min-width: 54px;
+      padding: 0 18px;
+      border: 1px solid #111;
+      border-radius: 0;
+      clip-path: polygon(
+        0 7px, 7px 7px, 7px 0,
+        calc(100% - 7px) 0, calc(100% - 7px) 7px, 100% 7px,
+        100% calc(100% - 7px), calc(100% - 7px) calc(100% - 7px),
+        calc(100% - 7px) 100%, 7px 100%, 7px calc(100% - 7px),
+        0 calc(100% - 7px)
+      );
+      background: #111;
+      color: #fff;
+      box-shadow: 0 12px 32px rgba(17,17,17,.18);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .01em;
+      transition: transform .15s ease, background .15s ease;
+    }
+
+    .qr-scan-fab iconify-icon { font-size: 20px; }
+
+    .qr-scan-fab:hover {
+      background: #303030;
+      transform: translateY(-1px);
+    }
+
+    .qr-scan-fab:active { transform: translateY(0) scale(.985); }
+
+    .qr-scan-fab:focus-visible {
+      outline: 2px solid #111;
+      outline-offset: 4px;
+    }
+
+    .qr-gallery-input { display: none; }
+
+    @media (max-width: 620px) {
+      .qr-scan-fab {
+        right: max(14px, env(safe-area-inset-right));
+        bottom: max(14px, env(safe-area-inset-bottom));
+        min-height: 52px;
+        min-width: 52px;
+        padding: 0 16px;
+      }
+
+      .qr-approval-actions {
+        justify-content: center;
+      }
+
+      .qr-approval-actions button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .qr-scan-fab { transition: none; }
+    }
+    .qr-approval-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .qr-approval-actions button {
+      min-height: 44px;
+      flex: 1 1 180px;
+    }
+    .qr-sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 210;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+      background: rgba(17,17,17,.34);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+
+    .qr-sheet {
+      width: min(760px, 100%);
+      max-height: min(94vh, 900px);
+      margin: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
+      border: 1px solid #111;
+      border-bottom: 0;
+      border-radius: 0;
+      clip-path: polygon(
+        0 10px, 10px 10px, 10px 0,
+        calc(100% - 10px) 0, calc(100% - 10px) 10px, 100% 10px,
+        100% 100%, 0 100%
+      );
+      padding-bottom: max(18px, env(safe-area-inset-bottom));
+    }
+
+    .qr-sheet-backdrop.active .qr-sheet {
+      transform: translateY(0);
+    }
+
+    #qrApprovalFab.qr-fab-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(12px);
+    }
+
+    @media (max-width: 620px) {
+      .qr-sheet {
+        width: 100%;
+        max-height: 96vh;
+        border-left: 0;
+        border-right: 0;
+      }
+    }
+
+    .qr-scanner-video {
+      width: 100%;
+      aspect-ratio: 1;
+      max-height: min(58vh, 420px);
+      object-fit: cover;
+      background: #111;
+      border: 1px solid var(--line);
+    }
+    .qr-scanner-frame {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #111;
+    }
+    .qr-scanner-frame::after {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border: 2px solid rgba(255,255,255,.9);
+      pointer-events: none;
+    }
+    .qr-scanner-status {
+      min-height: 20px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .qr-manual-input {
+      width: 100%;
+      min-height: 50px;
+      box-sizing: border-box;
+      border: 1px solid var(--line);
+      padding: 0 14px;
+      font: inherit;
+      letter-spacing: .12em;
+    }
+    @media (max-width: 620px) {
+      .qr-approval-actions { flex-direction: column; }
+      .qr-approval-actions button { width: 100%; flex-basis: auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .logout,
+      .edit-button,
+      .save-button,
+      .cancel-button,
+      .verify-button,
+      .snackbar {
+        transition: none;
+      }
+    }
+  
+    /* UI polish: preserve the existing visual language, improve hierarchy, density, and mobile behavior. */
+    body {
+      background:
+        radial-gradient(circle at 50% -10%, rgba(255,255,255,.92), transparent 38%),
+        var(--bg);
+    }
+
+    .page {
+      width: min(980px, 100%);
+      padding-top: 28px;
+    }
+
+    .topbar {
+      position: relative;
+      margin-bottom: 56px;
+    }
+
+    .topbar::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -18px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--line) 12%, var(--line) 88%, transparent);
+    }
+
+    .brand {
+      letter-spacing: -.045em;
+    }
+
+    .header {
+      max-width: 720px;
+      margin-bottom: 34px;
+    }
+
+    h1 {
+      font-size: clamp(52px, 8vw, 82px);
+    }
+
+    .subtitle {
+      font-size: 14px;
+    }
+
+    .profile-card,
+    .password-zone,
+    .devices-zone,
+    .service-access-zone,
+    .danger-zone {
+      box-shadow: 0 10px 36px rgba(17,17,17,.045);
+    }
+
+    .profile-top {
+      padding: 30px;
+    }
+
+    .avatar {
+      border-radius: 0;
+    }
+
+    .edit-button,
+    .save-button,
+    .cancel-button,
+    .logout,
+    .switch-account,
+    .service-revoke,
+    .device-logout,
+    .delete-button,
+    .verify-button,
+    .password-button {
+      border-radius: 0;
+    }
+
+    .settings-divider {
+      margin-top: 44px;
+      margin-bottom: 12px;
+    }
+
+    .settings-group {
+      gap: 10px;
+    }
+
+    .accordion-trigger {
+      min-height: 74px;
+    }
+
+    .accordion-trigger:focus-visible,
+    .switch-account:focus-visible,
+    .logout:focus-visible,
+    .edit-button:focus-visible,
+    .save-button:focus-visible,
+    .cancel-button:focus-visible,
+    .service-revoke:focus-visible,
+    .device-logout:focus-visible,
+    .delete-button:focus-visible,
+    .verify-button:focus-visible {
+      outline: 2px solid #111;
+      outline-offset: 3px;
+    }
+
+    .service-list,
+    .devices-list {
+      gap: 10px;
+    }
+
+    .service-row,
+    .login-row,
+    .device-card {
+      border-radius: 0;
+      transition: background .16s ease, border-color .16s ease, transform .16s ease;
+    }
+
+    .service-row:hover,
+    .login-row:hover,
+    .device-card:hover {
+      border-color: #b8b8b2;
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    .service-icon,
+    .login-icon {
+      border-radius: 0;
+    }
+
+    .service-revoke {
+      min-width: 68px;
+    }
+
+    .service-empty {
+      padding: 18px 4px;
+    }
+
+    @media (max-width: 650px) {
+      .page {
+        padding-top: 18px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        margin-bottom: 44px;
+      }
+
+      .topbar-actions {
+        gap: 6px;
+      }
+
+      .switch-account,
+      .logout {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+      }
+
+      .switch-account iconify-icon,
+      .logout iconify-icon {
+        font-size: 17px;
+      }
+
+      .switch-account,
+      .logout {
+        font-size: 0;
+      }
+
+      .header {
+        margin-bottom: 28px;
+      }
+
+      .profile-top {
+        padding: 22px 20px;
+      }
+
+      .identity {
+        width: 100%;
+      }
+
+      .service-row,
+      .login-row {
+        min-height: 68px;
+        padding: 10px;
+      }
+
+      .service-revoke {
+        min-width: 0;
+        padding: 0 10px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .page {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+
+      .brand img {
+        width: 28px;
+        height: 28px;
+      }
+
+      h1 {
+        font-size: 48px;
+      }
+
+      .service-row,
+      .login-row {
+        gap: 9px;
+      }
+
+      .service-icon,
+      .login-icon {
+        width: 34px;
+        height: 34px;
+      }
+
+      .service-time,
+      .login-time {
+        font-size: 10px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .service-row,
+      .login-row,
+      .device-card {
+        transition: none;
+      }
+    }
+
+      .mfa-content {
+      display: grid;
+      gap: 14px;
+      padding: 24px 28px 28px;
+    }
+
+    .mfa-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-width: 0;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      background: #fafaf8;
+    }
+
+    .mfa-status[aria-busy="true"] {
+      opacity: .78;
+    }
+
+    .mfa-status-copy {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .mfa-status-copy strong {
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .mfa-status-copy span {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .mfa-status-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 9px;
+      flex: 0 0 auto;
+      min-width: 20px;
+      color: var(--muted);
+    }
+
+    .mfa-retry {
+      min-height: 34px;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--fg);
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .mfa-retry:hover {
+      border-color: #111;
+      background: var(--soft);
+    }
+
+    .mfa-retry:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    .mfa-retry:focus-visible,
+    .mfa-copy:focus-visible,
+    .mfa-button:focus-visible {
+      outline: 2px solid #111;
+      outline-offset: 3px;
+    }
+
+    .mfa-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 0;
+    }
+
+    .mfa-button {
+      min-height: 42px;
+      padding: 0 14px;
+      border: 1px solid #111;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .mfa-button.secondary {
+      background: #fff;
+      color: #111;
+    }
+
+    .mfa-button:hover {
+      background: #303030;
+    }
+
+    .mfa-button.secondary:hover {
+      background: var(--soft);
+    }
+
+    .mfa-button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    .mfa-setup {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      background: #fafaf8;
+    }
+
+    .mfa-setup > strong {
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .mfa-qr-wrap {
+      display: grid;
+      place-items: center;
+      width: min(100%, 272px);
+      min-height: 272px;
+      padding: 15px;
+      border: 1px solid #111;
+      background: #fff;
+    }
+
+    .mfa-qr {
+      display: block;
+      width: 240px;
+      height: 240px;
+      max-width: 100%;
+      image-rendering: pixelated;
+    }
+
+    .mfa-manual {
+      display: grid;
+      gap: 8px;
+    }
+
+    .mfa-manual-label {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .mfa-secret-row {
+      display: flex;
+      align-items: stretch;
+      gap: 7px;
+    }
+
+    .mfa-secret {
+      flex: 1;
+      min-width: 0;
+      overflow: auto;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #111;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      white-space: nowrap;
+    }
+
+    .mfa-copy {
+      flex: 0 0 auto;
+      min-width: 72px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #111;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .mfa-copy:hover {
+      background: var(--soft);
+      border-color: #111;
+    }
+
+    .mfa-setup input {
+      width: min(220px, 100%);
+      height: 50px;
+      padding: 0 13px;
+      border: 1px solid var(--line);
+      outline: none;
+      background: #fff;
+      color: #111;
+      font: inherit;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: .22em;
+      text-align: center;
+    }
+
+    .mfa-setup input:focus {
+      border-color: #111;
+      box-shadow: 0 0 0 3px rgba(17,17,17,.08);
+    }
+
+    .mfa-codes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .mfa-code {
+      padding: 10px 9px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .04em;
+      text-align: center;
+    }
+
+    .mfa-warning {
+      padding: 10px 12px;
+      border: 1px solid #d7c8a0;
+      background: #fffaf0;
+      color: #67542a;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .mfa-code-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 650px) {
+      .mfa-content {
+        padding: 16px;
+      }
+
+      .mfa-status {
+        align-items: flex-start;
+        padding: 14px;
+      }
+
+      .mfa-status-indicator {
+        align-items: flex-start;
+      }
+
+      .mfa-retry {
+        min-height: 36px;
+      }
+
+      .mfa-codes {
+        grid-template-columns: 1fr;
+      }
+
+      .mfa-secret-row {
+        flex-direction: column;
+      }
+
+      .mfa-copy {
+        min-height: 42px;
+      }
+    }
+
+    /* Mobile layout hardening */
+    @media (max-width: 650px) {
+      .page {
+        padding: 20px 14px 56px;
+      }
+
+      .topbar {
+        margin-bottom: 30px;
+      }
+
+      .header {
+        margin-bottom: 26px;
+      }
+
+      h1 {
+        font-size: clamp(46px, 14vw, 60px);
+      }
+
+      .settings-divider {
+        margin-top: 34px;
+      }
+
+      .settings-group {
+        gap: 10px;
+      }
+
+      .profile-card,
+      .password-zone,
+      .devices-zone,
+      .service-access-zone,
+      .danger-zone {
+        border-radius: 0;
+        overflow: hidden;
+      }
+
+      .accordion-trigger {
+        min-height: 76px;
+        padding: 18px 16px;
+        gap: 12px;
+      }
+
+      .accordion-heading {
+        gap: 11px;
+      }
+
+      .accordion-heading iconify-icon {
+        font-size: 19px;
+      }
+
+      .accordion-title {
+        font-size: 14px;
+      }
+
+      .accordion-summary {
+        font-size: 11px;
+      }
+
+      .mfa-setup {
+        padding: 15px;
+      }
+
+      .mfa-qr-wrap {
+        width: min(100%, 272px);
+        min-height: 0;
+        aspect-ratio: 1;
+        justify-self: center;
+      }
+
+      .mfa-qr {
+        width: min(240px, 100%);
+        height: auto;
+        aspect-ratio: 1;
+      }
+
+      .mfa-actions {
+        width: 100%;
+      }
+
+      .mfa-button {
+        flex: 1 1 100%;
+      }
+
+      .service-row,
+      .login-row {
+        min-height: 64px;
+        padding: 10px;
+      }
+
+      .service-revoke {
+        min-height: 38px;
+      }
+    }
+
+  
+
+    /* First-run onboarding */
+    .onboarding-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(17,17,17,.42);
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+    }
+
+    .onboarding-backdrop.active { display: flex; }
+
+    .onboarding-modal {
+      width: min(620px, 100%);
+      overflow: hidden;
+      border: 1px solid #111;
+      background: #fff;
+      box-shadow: 0 24px 70px rgba(17,17,17,.18);
+      animation: onboardingPop .24s ease-out both;
+    }
+
+    @keyframes onboardingPop {
+      0% { opacity: 0; transform: translateY(12px) scale(.985); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .onboarding-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 20px 14px;
+    }
+
+    .onboarding-step {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .onboarding-title {
+      margin: 7px 0 0;
+      font-family: "Instrument Serif", serif;
+      font-size: 36px;
+      font-weight: 400;
+      line-height: .95;
+      letter-spacing: -.04em;
+    }
+
+    .onboarding-viewport {
+      overflow: hidden;
+      padding: 0 20px 20px;
+      touch-action: pan-y;
+      overscroll-behavior-x: contain;
+    }
+
+    .onboarding-track {
+      display: flex;
+      width: 400%;
+      transform: translate3d(0,0,0);
+      transition: transform .52s cubic-bezier(.16,1.35,.28,1);
+      will-change: transform;
+      cursor: grab;
+    }
+
+    .onboarding-track.dragging {
+      transition: none;
+      cursor: grabbing;
+    }
+
+    .onboarding-slide {
+      width: 25%;
+      flex: 0 0 25%;
+      box-sizing: border-box;
+      padding: 2px 0 0;
+      user-select: none;
+    }
+
+    .onboarding-title.bounce {
+      animation: onboardingTitleBounce .42s cubic-bezier(.16,1.45,.3,1) both;
+    }
+
+    @keyframes onboardingTitleBounce {
+      0% { opacity: 0; transform: translateY(10px) scale(.94); }
+      65% { opacity: 1; transform: translateY(-3px) scale(1.03); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .onboarding-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .onboarding-list {
+      display: grid;
+      gap: 9px;
+      margin: 18px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .onboarding-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      background: #fafaf8;
+      font-size: 12px;
+      line-height: 1.45;
+      animation: onboardingItem .38s cubic-bezier(.2,1.3,.35,1) both;
+    }
+
+    .onboarding-list li:nth-child(2) { animation-delay: .045s; }
+    .onboarding-list li:nth-child(3) { animation-delay: .09s; }
+
+    @keyframes onboardingItem {
+      from { opacity: 0; transform: translateX(14px) scale(.98); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    .onboarding-list iconify-icon {
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+
+    .onboarding-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .onboarding-section-link {
+      min-height: 38px;
+      padding: 0 11px;
+      border: 1px solid #111;
+      background: #fff;
+      color: #111;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .onboarding-section-link:active {
+      transform: scale(.97);
+    }
+
+    .onboarding-note {
+      margin-top: 14px;
+      padding: 11px 12px;
+      border-left: 2px solid #111;
+      background: #f4f4f0;
+      color: #333;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .onboarding-progress {
+      display: flex;
+      gap: 5px;
+      padding: 0 20px 16px;
+    }
+
+    .onboarding-dot {
+      width: 28px;
+      height: 3px;
+      background: var(--line);
+      transition: width .28s cubic-bezier(.2,1.3,.35,1), background .18s ease;
+    }
+
+     .onboarding-dot.active { width: 44px; background: #111; }
+
+    .onboarding-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 14px 20px 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .onboarding-actions button {
+      min-height: 42px;
+      padding: 0 14px;
+      border: 1px solid #111;
+      background: #fff;
+      color: #111;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 750;
+      transition: transform .14s cubic-bezier(.2,1.4,.35,1), background .15s ease, opacity .15s ease;
+    }
+
+    .onboarding-actions button:not(:disabled):active { transform: scale(.95); }
+    .onboarding-actions .primary { background: #111; color: #fff; }
+    .onboarding-actions button:disabled { opacity: .55; cursor: wait; }
+    .onboarding-skip { border-color: transparent !important; color: var(--muted) !important; background: transparent !important; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .onboarding-backdrop,
+      .onboarding-modal,
+      .onboarding-title.bounce,
+      .onboarding-list li {
+        animation: none !important;
+        transition: none !important;
+      }
+
+      .onboarding-track {
+        transition: none !important;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .onboarding-backdrop { align-items: flex-end; padding: 0; }
+      .onboarding-modal { width: 100%; border-bottom: 0; }
+      .onboarding-title { font-size: 32px; }
+    }
+
+    @media (max-width:1024px){
+      .edit-button,.save-button,.cancel-button,.delete-button,.verify-button,.device-actions button,.mfa-button{justify-content:center;text-align:center;}
+    }
+    @media (max-width:620px){
+      .edit-actions button,.device-actions button,.mfa-code-actions button{display:flex;align-items:center;justify-content:center;text-align:center;}
+      .topbar-actions button{justify-content:center;text-align:center;}
+    }
+    
+    /* Material 3-inspired account surfaces, kept in the existing monochrome system. */
+    .modal-backdrop,
+    .switcher-backdrop,
+    .login-log-sheet-backdrop,
+    .qr-sheet-backdrop,
+    .onboarding-backdrop {
+      background: rgba(17,17,17,.42);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .modal {
+      position: relative;
+      width: min(520px, 100%);
+      max-height: min(88svh, 760px);
+      overflow: auto;
+      overscroll-behavior: contain;
+      border: 1px solid rgba(17,17,17,.16);
+      border-radius: 28px;
+      background: #fff;
+      box-shadow: 0 24px 80px rgba(17,17,17,.22);
+    }
+
+    .modal-head {
+      padding: 24px 24px 18px;
+      border-bottom: 0;
+    }
+
+    .modal-body {
+      padding: 0 24px 24px;
+    }
+
+    .modal-close,
+    .switcher-close,
+    .login-log-sheet-close {
+      width: 40px;
+      height: 40px;
+      flex: 0 0 40px;
+      border: 0;
+      border-radius: 999px;
+      background: #f0f0ec;
+      transition: background .15s ease, transform .12s ease;
+    }
+
+    .modal-close:hover,
+    .switcher-close:hover,
+    .login-log-sheet-close:hover {
+      background: #e6e6e1;
+    }
+
+    .modal-close:active,
+    .switcher-close:active,
+    .login-log-sheet-close:active {
+      transform: scale(.96);
+    }
+
+    .modal-actions {
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .modal-actions > button,
+    .save-button,
+    .cancel-button,
+    .confirm-delete {
+      min-height: 44px;
+      border-radius: 999px;
+      padding-inline: 18px;
+    }
+
+    .confirm-input {
+      min-height: 52px;
+      height: 52px;
+      border-radius: 16px;
+      padding-inline: 16px;
+    }
+
+    .security-modal-field {
+      margin-bottom: 16px;
+    }
+
+    .device-action-modal {
+      width: min(500px, 100%);
+    }
+
+    .login-log-sheet {
+      width: min(720px, 100%);
+      max-height: min(82svh, 720px);
+      border: 1px solid rgba(17,17,17,.16);
+      border-bottom: 0;
+      border-radius: 28px 28px 0 0;
+      box-shadow: 0 -24px 80px rgba(17,17,17,.22);
+    }
+
+    .login-log-sheet::before,
+    .qr-sheet::before {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 4px;
+      margin: 10px auto -2px;
+      border-radius: 999px;
+      background: #b7b7b1;
+    }
+
+    .login-log-sheet-head {
+      padding: 16px 20px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .account-log-filter {
+      min-height: 36px;
+      border-radius: 999px;
+    }
+
+    .qr-sheet {
+      border-radius: 28px 28px 0 0;
+      border-bottom: 0;
+      box-shadow: 0 -24px 80px rgba(17,17,17,.22);
+    }
+
+    .qr-scanner-frame,
+    .qr-scanner-video {
+      border-radius: 20px;
+    }
+
+    .onboarding-modal {
+      border: 1px solid rgba(17,17,17,.16);
+      border-radius: 28px;
+      box-shadow: 0 24px 80px rgba(17,17,17,.22);
+    }
+
+    .device-card {
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: none;
+    }
+
+    .device-card.current {
+      border-color: #111;
+      box-shadow: inset 0 0 0 1px #111;
+    }
+
+    .device-trust,
+    .device-logout,
+    .mfa-button.secondary {
+      border-radius: 999px;
+    }
+
+    .devices-intro {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fafaf8;
+    }
+
+    .devices-intro strong {
+      display: block;
+      font-size: 12px;
+    }
+
+    .devices-intro span:not(.devices-live-badge):not(.devices-live-dot) {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .devices-live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex: 0 0 auto;
+      min-height: 28px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: #111;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .devices-live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #111;
+    }
+
+    .devices-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .devices-toolbar-note {
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 650px) {
+      .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+      }
+
+      .modal {
+        width: 100%;
+        max-width: none;
+        max-height: 92svh;
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 28px 28px 0 0;
+      }
+
+      .modal::before {
+        content: "";
+        display: block;
+        width: 36px;
+        height: 4px;
+        margin: 10px auto -2px;
+        border-radius: 999px;
+        background: #b7b7b1;
+      }
+
+      .modal-head {
+        padding: 16px 20px 16px;
+      }
+
+      .modal-body {
+        padding: 0 20px max(20px, env(safe-area-inset-bottom));
+      }
+
+      .modal-title {
+        font-size: 30px;
+      }
+
+      .modal-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .modal-actions > button {
+        width: 100%;
+      }
+
+      .login-log-sheet {
+        max-height: 90svh;
+        border-radius: 28px 28px 0 0;
+      }
+
+      .login-log-sheet-body {
+        max-height: calc(90svh - 104px);
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+      }
+
+      .devices-intro {
+        flex-direction: column;
+      }
+
+      .devices-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .devices-toolbar button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+  
+    /* Bento device layout: content carries the hierarchy, not decorative browser icons. */
+    .device-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      background: #f8f8f5;
+    }
+
+    .device-hero {
+      display: flex;
+      align-items: flex-start;
+      min-width: 0;
+      min-height: 76px;
+      padding: 14px;
+      border: 1px solid #e1e1dc;
+      background: #fff;
+    }
+
+    .device-hero-copy {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .device-subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .device-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .device-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 28px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #f0f0ec;
+      color: #111;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .device-badge.current {
+      background: #111;
+      color: #fff;
+    }
+
+    .device-badge iconify-icon,
+    .device-trust iconify-icon,
+    .device-logout iconify-icon,
+    .devices-toolbar iconify-icon {
+      font-size: 15px;
+      flex: 0 0 auto;
+    }
+
+    .device-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 0;
+    }
+
+    .device-meta-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      min-width: 0;
+      min-height: 74px;
+      padding: 12px;
+      border: 1px solid #e0e0db;
+      background: #fff;
+    }
+
+    .device-meta-item:first-child,
+    .device-meta-item:nth-child(2),
+    .device-meta-item:nth-child(3),
+    .device-meta-item:nth-child(4) {
+      grid-column: span 2;
+    }
+
+    .device-meta-item > iconify-icon {
+      margin-top: 1px;
+      color: #55554f;
+      font-size: 15px;
+      flex: 0 0 auto;
+    }
+
+    .device-meta-item span {
+      min-width: 0;
+    }
+
+    .device-meta-item small,
+    .device-meta-item strong,
+    .device-meta-item code {
+      display: block;
+    }
+
+    .device-meta-item small {
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .device-meta-item strong,
+    .device-meta-item code {
+      margin-top: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 11px;
+      font-weight: 750;
+      font-family: inherit;
+    }
+
+    .device-actions {
+      justify-content: flex-end;
+      margin-top: 0;
+      padding: 10px 4px 2px;
+      border-top: 1px solid #e5e5df;
+    }
+
+    .device-trust,
+    .device-logout {
+      min-height: 38px;
+      padding: 0 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #111;
+      font: inherit;
+      font-size: 11px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+
+    .device-logout {
+      border-color: #111;
+      background: #111;
+      color: #fff;
+    }
+
+    .device-trust:hover {
+      background: #f0f0ec;
+      border-color: #111;
+    }
+
+    .device-logout:hover {
+      background: #2c2c2c;
+    }
+
+    .device-action-modal .modal-body {
+      display: grid;
+      gap: 2px;
+    }
+
+    @media (max-width: 650px) {
+      .device-card {
+        padding: 8px;
+        gap: 8px;
+      }
+
+      .device-hero {
+        min-height: 70px;
+        padding: 13px;
+      }
+
+      .device-meta-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .device-meta-item,
+      .device-meta-item:first-child,
+      .device-meta-item:nth-child(2),
+      .device-meta-item:nth-child(3),
+      .device-meta-item:nth-child(4) {
+        grid-column: span 1;
+      }
+
+      .device-meta-item {
+        min-height: 82px;
+        padding: 11px;
+      }
+
+      .device-actions {
+        justify-content: stretch;
+        padding: 10px 2px 2px;
+      }
+
+      .device-actions > button {
+        flex: 1 1 100%;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .device-meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .device-meta-item {
+        min-height: 70px;
+      }
+    }
+
+  
+    /* Devices are a direct route, not an accordion. */
+    body[data-account-page="devices"] .devices-direct {
+      display: block !important;
+    }
+
+    body[data-account-page="devices"] .devices-direct .devices-content {
+      padding-top: 0;
+    }
+
+    /* Swipe-up sheets: start as sheets, expand to the viewport on an upward gesture. */
+    .login-log-sheet.sheet-fullscreen,
+    .qr-sheet.sheet-fullscreen,
+    .modal.sheet-fullscreen,
+    .switcher.sheet-fullscreen,
+    .onboarding-modal.sheet-fullscreen {
+      max-height: 100svh !important;
+      height: 100svh !important;
+      border-radius: 0 !important;
+    }
+
+    @media (max-width: 650px) {
+      .login-log-sheet.sheet-fullscreen,
+      .qr-sheet.sheet-fullscreen,
+      .modal.sheet-fullscreen,
+      .switcher.sheet-fullscreen,
+      .onboarding-modal.sheet-fullscreen {
+        width: 100vw !important;
+        max-width: none !important;
+      }
+    }
+
+    /* Final mobile account UI: square geometry and fully visible navigation labels. */
+    body[data-account-page] * {
+      border-radius: 0 !important;
+      -webkit-border-radius: 0 !important;
+    }
+
+    body[data-account-page] .account-tabs {
+      overflow: visible;
+      border-radius: 0 !important;
+      -webkit-border-radius: 0 !important;
+    }
+
+    body[data-account-page] .account-tab,
+    body[data-account-page] .account-tab iconify-icon,
+    body[data-account-page] .account-tab span,
+    body[data-account-page] .qr-scan-fab {
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+
+    body[data-account-page] .account-tab span {
+      display: inline !important;
+      color: inherit !important;
+    }
+
+    body[data-account-page] .account-tab iconify-icon {
+      display: inline-flex !important;
+      color: inherit !important;
+      flex: 0 0 auto;
+    }
+
+    body[data-account-page] .qr-scan-fab {
+      border: 1px solid #111 !important;
+      background: #111 !important;
+      color: #fff !important;
+      box-shadow: 0 10px 24px rgba(17,17,17,.18);
+    }
+
+    body[data-account-page] .devices-intro,
+    body[data-account-page] .devices-live-badge,
+    body[data-account-page] .device-card,
+    body[data-account-page] .device-icon,
+    body[data-account-page] .device-badge,
+    body[data-account-page] .device-meta-item,
+    body[data-account-page] .modal,
+    body[data-account-page] .login-log-sheet,
+    body[data-account-page] .switcher,
+    body[data-account-page] .confirm-input,
+    body[data-account-page] .account-log-filter {
+      border-radius: 0 !important;
+    }
+
+    @media (max-width: 650px) {
+      body[data-account-page] .account-tabs {
+        width: calc(100vw - 172px) !important;
+        left: max(12px, env(safe-area-inset-left)) !important;
+        right: calc(52px + 32px + env(safe-area-inset-right)) !important;
+        transform: none !important;
+      }
+
+      body[data-account-page] .account-tab {
+        min-width: 0;
+        padding-inline: 6px;
+      }
+
+      body[data-account-page] .account-tab span {
+        display: inline !important;
+        white-space: nowrap;
+      }
+    }
+
+    /* Final mobile account navigation: one nav, one QR action, no forced visibility overrides. */
+    @media (max-width: 650px) {
+      body[data-account-page] .account-tabs {
+        position: fixed !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        width: min(520px, calc(100vw - 92px)) !important;
+        height: 56px !important;
+        min-height: 56px !important;
+        margin: 0 !important;
+        padding: 4px !important;
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 4px !important;
+        border: 1px solid #111 !important;
+        background: #111 !important;
+        box-shadow: 0 10px 28px rgba(17,17,17,.16) !important;
+        transform: translateX(-50%) !important;
+        overflow: visible !important;
+        z-index: 190 !important;
+      }
+
+      body[data-account-page] .account-tab {
+        width: 100% !important;
+        min-width: 0 !important;
+        min-height: 46px !important;
+        height: 46px !important;
+        margin: 0 !important;
+        padding: 0 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 7px !important;
+        background: transparent !important;
+        color: #fff !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        clip-path: none !important;
+        white-space: nowrap !important;
+      }
+
+      body[data-account-page] .account-tab[aria-current="page"],
+      body[data-account-page] .account-tab.active {
+        background: #fff !important;
+        color: #111 !important;
+        clip-path: none !important;
+      }
+
+      body[data-account-page] .account-tab span {
+        display: inline !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
+
+      body[data-account-page] .account-tab iconify-icon {
+        display: inline-block !important;
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        font-size: 18px !important;
+        line-height: 1 !important;
+        flex: 0 0 18px !important;
+        color: currentColor !important;
+      }
+
+      /* The legacy scanner trigger opens the same approval scanner. Keep it out of the layout. */
+      body[data-account-page] #qrScanFab {
+        display: none !important;
+      }
+
+      body[data-account-page] #qrApprovalFab {
+        display: grid !important;
+        position: fixed !important;
+        right: max(12px, env(safe-area-inset-right)) !important;
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        width: 56px !important;
+        min-width: 56px !important;
+        height: 56px !important;
+        min-height: 56px !important;
+        padding: 0 !important;
+        place-items: center !important;
+        border: 1px solid #111 !important;
+        background: #111 !important;
+        color: #fff !important;
+        box-shadow: 0 10px 24px rgba(17,17,17,.18) !important;
+        z-index: 200 !important;
+      }
+
+      body[data-account-page] #qrApprovalFab.qr-fab-hidden {
+        display: none !important;
+      }
+
+      body[data-account-page] #qrApprovalFab iconify-icon {
+        display: inline-block !important;
+        width: 22px !important;
+        height: 22px !important;
+        color: currentColor !important;
+      }
+    }
+
+    @media (max-width: 380px) {
+      body[data-account-page] .account-tabs {
+        width: calc(100vw - 84px) !important;
+        height: 52px !important;
+        min-height: 52px !important;
+        padding: 3px !important;
+        gap: 3px !important;
+      }
+
+      body[data-account-page] .account-tab {
+        min-height: 44px !important;
+        height: 44px !important;
+        padding-inline: 5px !important;
+      }
+
+      body[data-account-page] .account-tab iconify-icon {
+        width: 16px !important;
+        height: 16px !important;
+        min-width: 16px !important;
+        font-size: 16px !important;
+        flex-basis: 16px !important;
+      }
+
+      body[data-account-page] #qrApprovalFab {
+        width: 52px !important;
+        min-width: 52px !important;
+        height: 52px !important;
+        min-height: 52px !important;
+      }
+    }
+
+    /* Critical account controls use local SVGs, not a remote icon runtime. */
+    .ui-icon {
+      display: block !important;
+      width: 18px !important;
+      height: 18px !important;
+      min-width: 18px !important;
+      flex: 0 0 18px !important;
+      color: currentColor !important;
+      overflow: visible !important;
+    }
+
+    .qr-scan-fab .ui-icon {
+      width: 22px !important;
+      height: 22px !important;
+      min-width: 22px !important;
+      flex-basis: 22px !important;
+    }
+
+    @media (max-width: 650px) {
+      body[data-account-page] .topbar-actions {
+        display: flex !important;
+        gap: 6px !important;
+      }
+
+      body[data-account-page] .topbar-actions .icon-button {
+        width: 42px !important;
+        min-width: 42px !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        padding: 0 !important;
+        display: grid !important;
+        place-items: center !important;
+        flex: 0 0 42px !important;
+      }
+
+      body[data-account-page] .topbar-actions .icon-button .ui-icon {
+        width: 18px !important;
+        height: 18px !important;
+      }
+
+      body[data-account-page] .account-tabs {
+        left: 12px !important;
+        right: 80px !important;
+        width: auto !important;
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        height: 56px !important;
+        min-height: 56px !important;
+        padding: 4px !important;
+        display: grid !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 4px !important;
+        transform: none !important;
+        z-index: 190 !important;
+        box-sizing: border-box !important;
+      }
+
+      body[data-account-page] .account-tab {
+        min-width: 0 !important;
+        width: 100% !important;
+        height: 46px !important;
+        min-height: 46px !important;
+        padding: 0 5px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        overflow: hidden !important;
+      }
+
+      body[data-account-page] .account-tab .ui-icon {
+        width: 17px !important;
+        height: 17px !important;
+        min-width: 17px !important;
+        flex-basis: 17px !important;
+      }
+
+      body[data-account-page] .account-tab span {
+        display: inline-block !important;
+        max-width: calc(100% - 23px) !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
+
+      body[data-account-page] #qrScanFab {
+        display: none !important;
+      }
+
+      body[data-account-page] #qrApprovalFab {
+        display: grid !important;
+        position: fixed !important;
+        right: 12px !important;
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        width: 56px !important;
+        min-width: 56px !important;
+        height: 56px !important;
+        min-height: 56px !important;
+        padding: 0 !important;
+        place-items: center !important;
+        z-index: 200 !important;
+        box-sizing: border-box !important;
+      }
+
+      body[data-account-page] #qrApprovalFab.qr-fab-hidden {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 380px) {
+      body[data-account-page] .account-tabs {
+        left: 8px !important;
+        right: 68px !important;
+        height: 52px !important;
+        min-height: 52px !important;
+        padding: 3px !important;
+        gap: 3px !important;
+      }
+
+      body[data-account-page] .account-tab {
+        height: 44px !important;
+        min-height: 44px !important;
+        padding-inline: 3px !important;
+        gap: 4px !important;
+      }
+
+      body[data-account-page] .account-tab .ui-icon {
+        width: 16px !important;
+        height: 16px !important;
+        min-width: 16px !important;
+        flex-basis: 16px !important;
+      }
+    }
+
+      /* Compact account navigation: icons stay visible, only the current section gets a label. */
+    .account-tabs .account-tab span {
+      display: none !important;
+    }
+
+    .account-tabs .account-tab.active span,
+    .account-tabs .account-tab[aria-current="page"] span {
+      display: inline-block !important;
+    }
+
+    .account-tabs .account-tab {
+      gap: 7px !important;
+    }
+
+    .account-tabs .account-tab .ui-icon {
+      flex: 0 0 18px !important;
+    }
+
+    .qr-scan-fab .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    @media (max-width: 380px) {
+      .account-tabs .account-tab .ui-icon {
+        flex-basis: 16px !important;
+      }
+    }
+
+    /* Responsive bottom-sheet system: sheets stay above floating navigation and drag naturally. */
+    :root {
+      --account-nav-clearance: 84px;
+      --account-safe-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+
+    body[data-account-page] {
+      padding-bottom: var(--account-nav-clearance);
+    }
+
+    .modal-backdrop,
+    .switcher-backdrop,
+    .login-log-sheet-backdrop,
+    .qr-sheet-backdrop,
+    .onboarding-backdrop {
+      z-index: 1000 !important;
+      isolation: isolate;
+    }
+
+    .modal-backdrop .modal,
+    .switcher-backdrop .switcher,
+    .login-log-sheet-backdrop .login-log-sheet,
+    .qr-sheet-backdrop .qr-sheet,
+    .onboarding-backdrop .onboarding-modal {
+      position: relative;
+      z-index: 1001;
+      max-width: 100%;
+      max-height: min(92svh, 760px);
+      max-height: min(92dvh, 760px);
+      min-height: 0;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      will-change: transform, height;
+    }
+
+    body:has(.modal-backdrop.active),
+    body:has(.switcher-backdrop.active),
+    body:has(.login-log-sheet-backdrop.active),
+    body:has(.qr-sheet-backdrop.active),
+    body:has(.onboarding-backdrop.active) {
+      overflow: hidden;
+    }
+
+    body:has(.modal-backdrop.active) .account-tabs,
+    body:has(.modal-backdrop.active) #qrApprovalFab,
+    body:has(.switcher-backdrop.active) .account-tabs,
+    body:has(.switcher-backdrop.active) #qrApprovalFab,
+    body:has(.login-log-sheet-backdrop.active) .account-tabs,
+    body:has(.login-log-sheet-backdrop.active) #qrApprovalFab,
+    body:has(.qr-sheet-backdrop.active) .account-tabs,
+    body:has(.qr-sheet-backdrop.active) #qrApprovalFab,
+    body:has(.onboarding-backdrop.active) .account-tabs,
+    body:has(.onboarding-backdrop.active) #qrApprovalFab {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      transform: translateY(16px) !important;
+    }
+
+    .sheet-dragging {
+      transition: none !important;
+      user-select: none !important;
+    }
+
+    .sheet-fullscreen {
+      height: 100svh !important;
+      height: 100dvh !important;
+      max-height: 100svh !important;
+      max-height: 100dvh !important;
+      width: 100% !important;
+      max-width: none !important;
+      border-radius: 0 !important;
+    }
+
+    .sheet-fullscreen .modal-body,
+    .sheet-fullscreen .login-log-sheet-body {
+      padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+    }
+
+    @media (max-width: 650px) {
+      body[data-account-page] {
+        --account-nav-clearance: 82px;
+      }
+
+      .modal-backdrop,
+      .switcher-backdrop,
+      .login-log-sheet-backdrop,
+      .qr-sheet-backdrop,
+      .onboarding-backdrop {
+        align-items: flex-end !important;
+        justify-content: center !important;
+        padding: 0 !important;
+      }
+
+      .modal-backdrop .modal,
+      .switcher-backdrop .switcher,
+      .login-log-sheet-backdrop .login-log-sheet,
+      .qr-sheet-backdrop .qr-sheet,
+      .onboarding-backdrop .onboarding-modal {
+        width: 100% !important;
+        max-width: none !important;
+        max-height: min(92svh, 760px) !important;
+        max-height: min(92dvh, 760px) !important;
+        margin: 0 !important;
+        border-right: 0 !important;
+        border-left: 0 !important;
+        border-bottom: 0 !important;
+        border-radius: 28px 28px 0 0 !important;
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+
+      .modal-backdrop .modal::before,
+      .switcher-backdrop .switcher::before,
+      .login-log-sheet-backdrop .login-log-sheet::before,
+      .qr-sheet-backdrop .qr-sheet::before,
+      .onboarding-backdrop .onboarding-modal::before {
+        content: "";
+        display: block;
+        width: 38px;
+        height: 4px;
+        margin: 10px auto 0;
+        border-radius: 999px !important;
+        background: #b7b7b1;
+      }
+
+      .sheet-fullscreen {
+        border-radius: 0 !important;
+      }
+    }
+
+    @media (max-width: 380px) {
+      body[data-account-page] {
+        --account-nav-clearance: 76px;
+      }
+
+      .modal-backdrop .modal,
+      .switcher-backdrop .switcher,
+      .login-log-sheet-backdrop .login-log-sheet,
+      .qr-sheet-backdrop .qr-sheet,
+      .onboarding-backdrop .onboarding-modal {
+        max-height: min(94svh, 760px) !important;
+        max-height: min(94dvh, 760px) !important;
+        border-radius: 22px 22px 0 0 !important;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sheet-dragging,
+      .sheet-fullscreen {
+        transition: none !important;
+      }
+    }
+
+
+    /* Final sheet/nav arbitration. Overlay state must beat legacy visibility rules. */
+    body[data-account-page]:has(.modal-backdrop.active) .account-tabs,
+    body[data-account-page]:has(.modal-backdrop.active) #qrApprovalFab,
+    body[data-account-page]:has(.switcher-backdrop.active) .account-tabs,
+    body[data-account-page]:has(.switcher-backdrop.active) #qrApprovalFab,
+    body[data-account-page]:has(.login-log-sheet-backdrop.active) .account-tabs,
+    body[data-account-page]:has(.login-log-sheet-backdrop.active) #qrApprovalFab,
+    body[data-account-page]:has(.qr-sheet-backdrop.active) .account-tabs,
+    body[data-account-page]:has(.qr-sheet-backdrop.active) #qrApprovalFab,
+    body[data-account-page]:has(.onboarding-backdrop.active) .account-tabs,
+    body[data-account-page]:has(.onboarding-backdrop.active) #qrApprovalFab {
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transform: translateY(18px) !important;
+    }
+
+    /* The QR FAB is an icon-only control. Accessible text remains in the DOM. */
+    body[data-account-page] #qrApprovalFab > .sr-only,
+    body[data-account-page] #qrApprovalFab > span.sr-only,
+    body[data-account-page] .qr-scan-fab > .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0 0 0 0) !important;
+      clip-path: inset(50%) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    /* Bottom navigation: only the active destination gets a visible label. */
+    @media (max-width: 650px) {
+      body[data-account-page] .account-tab span:not(.sr-only) {
+        display: none !important;
+      }
+
+      body[data-account-page] .account-tab.active span:not(.sr-only),
+      body[data-account-page] .account-tab[aria-current="page"] span:not(.sr-only) {
+        display: inline-block !important;
+      }
+
+      body[data-account-page] .account-tabs {
+        width: min(520px, calc(100vw - 84px)) !important;
+        left: 12px !important;
+        right: 72px !important;
+        box-sizing: border-box !important;
+      }
+
+      body[data-account-page] #qrApprovalFab {
+        right: max(12px, env(safe-area-inset-right)) !important;
+        bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        width: 56px !important;
+        height: 56px !important;
+        min-width: 56px !important;
+        min-height: 56px !important;
+        padding: 0 !important;
+        display: grid !important;
+        place-items: center !important;
+        z-index: 200 !important;
+      }
+    }
+
+    @media (max-width: 380px) {
+      body[data-account-page] .account-tabs {
+        width: calc(100vw - 76px) !important;
+        left: 8px !important;
+        right: 60px !important;
+      }
+
+      body[data-account-page] #qrApprovalFab {
+        width: 52px !important;
+        height: 52px !important;
+        min-width: 52px !important;
+        min-height: 52px !important;
+      }
+    }
+</style>
+</head>
+
+<body data-account-page="profile">
+  <main class="page">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Ace ID home">
+        <img src="/icon.png" alt="" width="30" height="30">
+        <span>Ace ID</span>
+      </a>
+
+      <div class="topbar-actions">
+        <button
+          id="switchAccountButton"
+          class="switch-account icon-button"
+          type="button"
+          aria-haspopup="dialog"
+          aria-label="Switch Ace ID"
+          title="Switch Ace ID"
+        >
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h12.5M13.5 4 17.5 8l-4 4M20 16H7.5M10.5 12l-4 4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+          <span>Switch identity</span>
+        </button>
+
+        <a href="/account/subscription" class="switch-account icon-button" aria-label="Subscription" title="Subscription">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 7h14M7 4h10v16H7zM9 11h6M9 15h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+          <span>Subscription</span>
+        </a>
+
+        <button id="logoutButton" class="logout icon-button" type="button" aria-label="Sign out" title="Sign out">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M10 4H5v16h5M14 8l4 4-4 4M8 12h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+          <span>Sign out</span>
+        </button>
+      </div>
+    </header>
+
+    <div id="loading" class="loading" role="status" aria-live="polite" aria-busy="true"><span class="ace-loading">Loading your account…</span></div>
+
+    <section id="content" class="hidden">
+      <header class="header">
+        <h1>Your profile.</h1>
+        <p class="subtitle">
+          Manage the identity connected to your Ace ID.
+        </p>
+      </header>
+
+      <nav class="account-tabs" aria-label="Ace ID sections">
+<a href="/account/profile" class="account-tab active" data-account-page-link="profile"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 20c.7-4 3-6 6.5-6s5.8 2 6.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg><span>Profile</span></a>
+<a href="/account/security" class="account-tab" data-account-page-link="security"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3 19 6v5.5c0 4.5-2.8 7.5-7 9.5-4.2-2-7-5-7-9.5V6l7-3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="miter"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg><span>Security</span></a>
+<a href="/account/devices" class="account-tab" data-account-page-link="devices"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="12" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 20h8M12 16v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg><span>Devices</span></a>
+</nav>
+      <div class="settings-divider account-section-divider profile-divider">Profile</div>
+
+      <section id="profile-card" class="profile-card">
+        <div class="profile-top">
+          <div class="identity">
+            <div class="avatar">
+              <img
+                id="avatarImage"
+                alt=""
+                class="hidden"
+                decoding="async"
+                referrerpolicy="no-referrer"
+              >
+              <div id="avatarFallback" class="avatar-fallback">A</div>
+            </div>
+
+            <div class="identity-copy">
+              <div id="identityName" class="identity-name">—</div>
+              <div id="identityUsername" class="identity-username">—</div>
+            </div>
+          </div>
+
+          <button id="editButton" class="edit-button" type="button">
+            <iconify-icon icon="hugeicons:pencil-edit-02"></iconify-icon>
+            Edit profile
+          </button>
+        </div>
+
+        <div class="account-fields">
+          <div class="account-field">
+            <div class="field-label">Display name</div>
+            <div id="displayNameValue" class="field-value">—</div>
+          </div>
+
+          <div class="account-field">
+            <div class="field-label">Username</div>
+            <div class="field-value-with-action">
+              <div id="usernameValue" class="field-value">—</div>
+              <button id="copyUsernameButton" class="field-copy-button" type="button" aria-label="Copy username">
+                <i class="hgi hgi-stroke hgi-rounded hgi-copy"></i>
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="account-field">
+            <div class="field-label">Email</div>
+            <div id="emailValue" class="field-value">—</div>
+          </div>
+
+          <div class="account-field">
+            <div class="field-label">Email status</div>
+            <div id="emailStatus">—</div>
+          </div>
+
+          <div class="account-field">
+            <div class="field-label">Ace ID</div>
+            <div class="field-value-with-action">
+              <div id="accountIdValue" class="field-value muted">—</div>
+              <button id="copyAccountIdButton" class="field-copy-button" type="button" aria-label="Copy Ace ID">
+                <i class="hgi hgi-stroke hgi-rounded hgi-copy"></i>
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <section id="editPanel" class="edit-panel" aria-hidden="true">
+          <div class="edit-heading">
+            <div class="eyebrow">Profile settings</div>
+            <h2>Edit profile.</h2>
+            <p>Changes are applied to your Ace ID.</p>
+          </div>
+
+          <div class="avatar-editor">
+            <div class="avatar">
+              <img
+                id="editAvatarImage"
+                alt=""
+                class="hidden"
+                decoding="async"
+                referrerpolicy="no-referrer"
+              >
+              <div id="editAvatarFallback" class="avatar-fallback">A</div>
+            </div>
+
+            <div class="avatar-actions">
+              <label for="avatarUrl">Profile picture</label>
+              <input
+                id="avatarUrl"
+                type="url"
+                inputmode="url"
+                autocomplete="url"
+                placeholder="https://example.com/avatar.png"
+              >
+              <div class="helper">
+                Use a direct HTTP(S) image URL. JPG, PNG and WebP are recommended.
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="displayName">Display name</label>
+              <input
+                id="displayName"
+                type="text"
+                autocomplete="name"
+                maxlength="100"
+              >
+            </div>
+
+            <div class="field">
+              <label for="username">Account ID</label>
+              <input
+                id="username"
+                type="text"
+                autocomplete="username"
+                autocapitalize="none"
+                spellcheck="false"
+                maxlength="20"
+              >
+              <div class="field-status" aria-live="polite">
+                 <span id="usernameStatus"></span>
+                 <span class="field-helper-inline">Core and Apex members can change their username.</span>
+               </div>
+            </div>
+
+            <div class="field full">
+              <label for="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                autocomplete="email"
+                autocapitalize="none"
+                spellcheck="false"
+              >
+            </div>
+          </div>
+
+          <div class="edit-actions">
+            <button id="cancelButton" class="cancel-button" type="button">
+              Cancel
+            </button>
+
+            <button id="saveButton" class="save-button" type="button">
+              <iconify-icon icon="hugeicons:floppy-disk"></iconify-icon>
+              Save changes
+            </button>
+          </div>
+        </section>
+      </section>
+
+
+      <div class="settings-divider account-section-divider security-divider">Security</div>
+
+      <div id="settings-group" class="settings-group account-security-group">
+        <section class="service-access-zone">
+          <button id="passkeyAccordion" class="accordion-trigger" type="button" aria-expanded="false" aria-controls="passkeyPanel">
+            <span class="accordion-heading">
+              <iconify-icon icon="hugeicons:fingerprint-scan"></iconify-icon>
+              <span class="accordion-copy">
+                <span class="accordion-title">Passkeys</span>
+                <span class="accordion-summary">Use a device passkey or security key to sign in without a password.</span>
+              </span>
+            </span>
+            <iconify-icon class="accordion-chevron" icon="hugeicons:arrow-down-01"></iconify-icon>
+          </button>
+
+          <div id="passkeyPanel" class="accordion-panel">
+            <div style="padding:20px;">
+              <p id="passkeyAccountStatus" style="margin:0 0 16px;color:var(--muted);font-size:12px;line-height:1.5;">
+                Passkeys use your device's secure authenticator. Ace ID stores only the public credential.
+              </p>
+
+              <div id="passkeyAccountList" style="display:grid;gap:8px;margin-bottom:14px;"></div>
+
+              <button
+                id="addPasskeyButton"
+                type="button"
+                style="min-height:44px;padding:0 14px;border:1px solid #111;background:#111;color:#fff;font:inherit;font-size:12px;font-weight:750;cursor:pointer;"
+              >
+                Add a passkey
+              </button>
+
+              <div
+                id="passkeyAccountMessage"
+                role="status"
+                aria-live="polite"
+                style="min-height:18px;margin-top:10px;color:var(--muted);font-size:12px;"
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="service-access-zone">
+          <button id="mfaAccordion" class="accordion-trigger" type="button" aria-expanded="false" aria-controls="mfaPanel">
+            <span class="accordion-heading">
+              <iconify-icon icon="hugeicons:security-check"></iconify-icon>
+              <span class="accordion-copy">
+                <span class="accordion-title">Authenticator & recovery</span>
+                <span class="accordion-summary">Protect sign-ins with a TOTP authenticator and one-time recovery codes.</span>
+              </span>
+            </span>
+            <iconify-icon class="accordion-chevron" icon="hugeicons:arrow-down-01"></iconify-icon>
+          </button>
+
+          <div id="mfaPanel" class="accordion-panel">
+            <div class="mfa-content">
+              <div class="mfa-status" id="mfaStatus" aria-live="polite" aria-busy="true">
+                <div class="mfa-status-copy">
+                  <strong id="mfaStatusTitle">Authenticator</strong>
+                  <span id="mfaStatusText">Checking security settings…</span>
+                </div>
+                <div class="mfa-status-indicator">
+                  <iconify-icon id="mfaStatusIcon" icon="hugeicons:loading-03" width="20" height="20"></iconify-icon>
+                  <button id="mfaRetryButton" class="mfa-retry hidden" type="button">Retry</button>
+                </div>
+              </div>
+
+              <div class="mfa-actions">
+                <button id="mfaSetupButton" class="mfa-button" type="button">Set up authenticator</button>
+                <button id="mfaChangeButton" class="mfa-button secondary hidden" type="button">Change authenticator</button>
+                <button id="mfaRecoveryButton" class="mfa-button secondary hidden" type="button">Regenerate recovery codes</button>
+                <button id="mfaDisableButton" class="mfa-button secondary hidden" type="button">Disable</button>
+              </div>
+
+              <div id="mfaSetup" class="mfa-setup hidden">
+                <strong>1. Scan the QR code</strong>
+                <div class="mfa-qr-wrap">
+                  <img id="mfaQr" class="mfa-qr" alt="Ace ID authenticator setup QR code">
+                </div>
+
+                <div class="helper">
+                  Use Google Authenticator, 1Password, Microsoft Authenticator, or another TOTP-compatible app.
+                  If scanning does not work, enter the setup key manually.
+                </div>
+
+                <div class="mfa-manual">
+                  <span class="mfa-manual-label">Manual setup key</span>
+                  <div class="mfa-secret-row">
+                    <code id="mfaSecret" class="mfa-secret"></code>
+                    <button id="mfaCopyButton" class="mfa-copy" type="button">Copy key</button>
+                  </div>
+                </div>
+
+                <label for="mfaSetupCode">2. Enter the 6-digit code from your authenticator</label>
+                <input
+                  id="mfaSetupCode"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  pattern="[0-9]{6}"
+                  maxlength="6"
+                  placeholder="000000"
+                  aria-label="Authenticator verification code"
+                >
+
+                <div class="mfa-actions">
+                  <button id="mfaConfirmButton" class="mfa-button" type="button">Enable authenticator</button>
+                  <button id="mfaCancelButton" class="mfa-button secondary" type="button">Cancel setup</button>
+                </div>
+              </div>
+
+              <div id="mfaCodes" class="mfa-setup hidden">
+                <strong>Save your recovery codes</strong>
+                <div class="mfa-codes" id="mfaCodesList"></div>
+                <div class="mfa-warning">Each code works once. Save these somewhere secure. They will not be shown again after this screen is closed.</div>
+                <div class="mfa-code-actions">
+                  <button id="mfaCopyCodesButton" class="mfa-button secondary" type="button">Copy recovery codes</button>
+                  <button id="mfaDownloadCodesButton" class="mfa-button secondary" type="button">Download codes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="password-zone">
+          <button
+            id="passwordAccordion"
+            class="accordion-trigger"
+            type="button"
+            aria-expanded="false"
+            aria-controls="passwordPanel"
+          >
+            <span class="accordion-heading">
+              <iconify-icon icon="hugeicons:lock-password"></iconify-icon>
+              <span class="accordion-copy">
+                <span class="accordion-title">Password management</span>
+                <span class="accordion-summary">Change your password and review it safely before submitting.</span>
+              </span>
+            </span>
+            <iconify-icon class="accordion-chevron" icon="hugeicons:arrow-down-01"></iconify-icon>
+          </button>
+
+          <div id="passwordPanel" class="accordion-panel">
+            <div class="password-content">
+              <p class="password-description">
+                Your current password is never stored in readable form and cannot be retrieved from Ace ID.
+                The controls below can reveal passwords you have typed.
+              </p>
+
+              <div id="passwordLocked" class="password-locked hidden">
+                <iconify-icon icon="hugeicons:mail-01"></iconify-icon>
+                <span>Verify your email address to unlock password management.</span>
+              </div>
+
+              <form id="passwordForm" class="password-form hidden" novalidate>
+                <div class="password-field">
+                  <label for="currentPassword">Current password</label>
+                  <div class="password-input-wrap">
+                    <input id="currentPassword" type="password" autocomplete="current-password" required>
+                    <button class="password-reveal" type="button" data-password-target="currentPassword" aria-label="Show current password">
+                      <iconify-icon icon="hugeicons:view"></iconify-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="password-field">
+                  <label for="newPassword">New password</label>
+                  <div class="password-input-wrap">
+                    <input id="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="30" required>
+                    <button class="password-reveal" type="button" data-password-target="newPassword" aria-label="Show new password">
+                      <iconify-icon icon="hugeicons:view"></iconify-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="password-field">
+                  <label for="confirmPassword">Confirm new password</label>
+                  <div class="password-input-wrap">
+                    <input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="30" required>
+                    <button class="password-reveal" type="button" data-password-target="confirmPassword" aria-label="Show confirmed password">
+                      <iconify-icon icon="hugeicons:view"></iconify-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div id="passwordStatus" class="password-status" aria-live="polite"></div>
+
+                <div class="password-actions">
+                  <button id="changePasswordButton" class="password-button" type="submit">
+                    Change password
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <a class="service-access-zone service-access-link" href="/account/services">
+          <span class="accordion-heading">
+            <iconify-icon icon="hugeicons:link-02"></iconify-icon>
+            <span class="accordion-copy">
+              <span class="accordion-title">Connected Services</span>
+              <span class="accordion-summary">Manage applications connected to your Ace ID.</span>
+            </span>
+          </span>
+          <iconify-icon class="accordion-chevron" icon="hugeicons:arrow-right-01"></iconify-icon>
+        </a>
+
+        <section class="devices-zone devices-direct">
+          <div class="devices-content">
+            <div class="devices-intro">
+              <div>
+                <strong>Active sessions</strong>
+                <span>Anyone with access to your account can see this list, but signing out a device still requires verification.</span>
+              </div>
+              <span class="devices-live-badge"><span class="devices-live-dot"></span>Live</span>
+            </div>
+
+            <div id="devicesStatus" class="devices-status" aria-live="polite">Loading active sessions…</div>
+            <div class="devices-toolbar">
+              <span class="devices-toolbar-note">Your current session is marked with <strong>Current</strong>.</span>
+              <button id="signOutOtherDevicesButton" class="mfa-button secondary" type="button">
+                <iconify-icon icon="hugeicons:logout-01" aria-hidden="true"></iconify-icon>
+                Sign out other devices
+              </button>
+            </div>
+            <div id="devicesList" class="devices-list" aria-live="polite"></div>
+          </div>
+        </section>
+      </div>
+
+        <section class="devices-zone account-security-extra" style="margin-top:16px;">
+          <div style="padding:18px 20px;">
+            <div class="accordion-heading">
+              <iconify-icon icon="hugeicons:shield-01"></iconify-icon>
+              <span class="accordion-copy">
+                <span class="accordion-title">Login approvals</span>
+                <span class="accordion-summary">Approve sign-ins from another device.</span>
+              </span>
+            </div>
+            <div id="loginApprovalSettings" style="margin-top:16px;"></div>
+            <div id="loginApprovalList" style="display:grid;gap:8px;margin-top:12px;"></div>
+          </div>
+        </section>
+
+        <section class="danger-zone account-security-extra" style="margin-top:16px;">
+          <div class="danger-content">
+            <div class="danger-title">
+              <iconify-icon icon="hugeicons:lock"></iconify-icon>
+              Freeze Ace ID
+            </div>
+            <p class="danger-description">
+              Freeze new sign-ins and remove active devices. You can restore access later from the unfreeze page.
+            </p>
+            <button id="freezeAccountButton" class="delete-button" type="button">
+              Freeze account
+            </button>
+            <a id="unfreezeAccountButton" href="/account/unfreeze" class="save-button" style="display:none;margin-top:8px;text-decoration:none;">
+              Unfreeze Ace ID
+            </a>
+            <div id="accountFreezeStatus" style="margin-top:10px;color:var(--muted);font-size:12px;" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <section id="danger-zone-final" class="danger-zone account-security-extra" style="margin-top:16px;">
+          <div class="danger-content">
+            <div class="danger-title">
+              <iconify-icon icon="hugeicons:delete-02"></iconify-icon>
+              Delete account
+            </div>
+            <p class="danger-description">
+              Permanently remove your Ace ID account and its associated data.
+              This action cannot be undone.
+            </p>
+            <button id="deleteButton" class="delete-button" type="button">
+              <iconify-icon icon="hugeicons:delete-02"></iconify-icon>
+              Delete account
+            </button>
+          </div>
+        </section>
+
+    </section>
+  </main>
+
+
+  <div id="switcherBackdrop" class="switcher-backdrop" aria-hidden="true">
+    <section class="switcher" role="dialog" aria-modal="true" aria-labelledby="switcherTitle">
+      <header class="switcher-head">
+        <div>
+          <h2 id="switcherTitle" class="switcher-title">Switch identity.</h2>
+          <p class="switcher-description">Ace IDs already signed in on this browser can be opened instantly.</p>
+        </div>
+        <button id="closeSwitcher" class="switcher-close" type="button" aria-label="Close identity switcher">
+          <svg class="ui-icon close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>
+        </button>
+      </header>
+      <div id="accountChoices" class="account-choices"></div>
+      <div class="switcher-footer">
+        <button id="addAccountButton" class="add-account-button" type="button">
+          <iconify-icon icon="hugeicons:user-add-01"></iconify-icon>
+          Add another account
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <div id="securityActionModal" class="modal-backdrop" aria-hidden="true">
+    <section
+      class="modal security-action-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="securityActionTitle"
+      aria-describedby="securityActionDescription"
+    >
+      <header class="modal-head">
+        <div>
+          <h2 id="securityActionTitle" class="modal-title">Security action.</h2>
+          <p id="securityActionDescription" class="modal-description"></p>
+        </div>
+        <button id="closeSecurityActionModal" class="modal-close" type="button" aria-label="Close security action">
+          <svg class="ui-icon close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>
+        </button>
+      </header>
+
+      <form id="securityActionForm" class="modal-body" novalidate>
+        <div id="securityPasswordField" class="security-modal-field">
+          <label class="confirm-label" for="securityActionPassword">Current password</label>
+          <input id="securityActionPassword" class="confirm-input" type="password" autocomplete="current-password">
+        </div>
+
+        <div id="securityCodeField" class="security-modal-field">
+          <label id="securityActionCodeLabel" class="confirm-label" for="securityActionCode">Authenticator code</label>
+          <input id="securityActionCode" class="confirm-input" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="000000">
+          <button id="securityUseRecoveryCode" class="cancel-button" type="button" style="margin-top:8px;">Use a recovery code instead</button>
+        </div>
+
+        <div id="securityPasskeyField" class="security-modal-field hidden">
+          <button id="securityPasskeyButton" class="save-button security-passkey-button" type="button">
+            <iconify-icon icon="hugeicons:fingerprint-scan"></iconify-icon>
+            Verify with passkey
+          </button>
+          <div class="security-modal-hint">Use a registered passkey instead of entering a TOTP code.</div>
+        </div>
+
+        <div id="securityActionDivider" class="security-action-divider hidden" aria-hidden="true">
+          <span>or</span>
+        </div>
+
+        <div id="securityActionStatus" class="security-modal-status" role="alert" aria-live="polite"></div>
+
+        <div class="modal-actions">
+          <button id="cancelSecurityAction" class="cancel-button" type="button">Cancel</button>
+          <button id="submitSecurityAction" class="save-button" type="submit">Continue</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div id="deviceActionModal" class="modal-backdrop" aria-hidden="true">
+    <section
+      class="modal device-action-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="deviceActionTitle"
+      aria-describedby="deviceActionDescription"
+    >
+      <header class="modal-head">
+        <div>
+          <div class="modal-kicker">Device security</div>
+          <h2 id="deviceActionTitle" class="modal-title">Verify device action.</h2>
+          <p id="deviceActionDescription" class="modal-description"></p>
+        </div>
+        <button id="closeDeviceActionModal" class="modal-close" type="button" aria-label="Close device action">
+          <svg class="ui-icon close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>
+        </button>
+      </header>
+      <form id="deviceActionForm" class="modal-body" novalidate>
+        <div class="security-modal-field">
+          <label class="confirm-label" for="deviceActionPassword">Current password</label>
+          <input
+            id="deviceActionPassword"
+            class="confirm-input"
+            type="password"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+        <div id="deviceActionLabelField" class="security-modal-field hidden">
+          <label class="confirm-label" for="deviceActionLabel">Device name</label>
+          <input
+            id="deviceActionLabel"
+            class="confirm-input"
+            type="text"
+            maxlength="120"
+            autocomplete="off"
+            placeholder="Trusted device"
+          >
+        </div>
+        <div id="deviceActionStatus" class="security-modal-status" role="alert" aria-live="polite"></div>
+        <div class="modal-actions">
+          <button id="cancelDeviceAction" class="cancel-button" type="button">Cancel</button>
+          <button id="submitDeviceAction" class="save-button" type="submit">Continue</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div id="deleteModal" class="modal-backdrop" aria-hidden="true">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="deleteTitle"
+    >
+      <header class="modal-head">
+        <div>
+          <h2 id="deleteTitle" class="modal-title">Delete account.</h2>
+          <p class="modal-description">
+            This permanently deletes your Ace ID and cannot be reversed.
+          </p>
+        </div>
+
+        <button id="closeDeleteModal" class="modal-close" type="button" aria-label="Close">
+          <svg class="ui-icon close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>
+        </button>
+      </header>
+
+      <div class="modal-body">
+        <label class="confirm-label" for="deleteConfirmation">
+          Type DELETE to confirm
+        </label>
+
+        <input
+          id="deleteConfirmation"
+          class="confirm-input"
+          type="text"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+          placeholder="DELETE"
+        >
+
+        <div class="modal-actions">
+          <button id="cancelDelete" class="cancel-button" type="button">
+            Cancel
+          </button>
+
+          <button id="confirmDelete" class="confirm-delete" type="button" disabled>
+            Delete account
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <input id="qrApprovalGalleryInput" class="qr-gallery-input" type="file" accept="image/*" aria-label="Choose a QR code image from gallery">
+
+  <button id="qrApprovalFab" class="qr-scan-fab" type="button" aria-label="Scan QR code to approve sign-in">
+    <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="4" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="14" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M14 14h3v3h3M14 20h3M20 14v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg><span class="sr-only">Scan QR</span>
+  </button>
+  <div id="snackbar" class="snackbar-stack" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  <div id="qrApprovalModal" class="modal-backdrop qr-sheet-backdrop" aria-hidden="true">
+    <section class="modal qr-sheet" role="dialog" aria-modal="true" aria-labelledby="qrApprovalTitle">
+      <header class="modal-head">
+        <div>
+          <div class="modal-kicker">Cross-device sign-in</div>
+          <h2 id="qrApprovalTitle" class="modal-title">Scan a QR code.</h2>
+          <p class="modal-description">Scan the QR shown on the device waiting to sign in, then confirm its matching number.</p>
+        </div>
+        <button id="closeQrApprovalModal" class="modal-close" type="button" aria-label="Close QR approval">
+          <svg class="ui-icon close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg>
+        </button>
+      </header>
+      <div class="modal-body">
+        <div class="qr-scanner-frame">
+          <video id="qrApprovalVideo" class="qr-scanner-video" autoplay playsinline muted></video>
+        </div>
+        <div id="qrApprovalStatus" class="qr-scanner-status" role="status" aria-live="polite">Starting camera…</div>
+        <label class="confirm-label" for="qrApprovalCode">Matching number</label>
+        <input id="qrApprovalCode" class="qr-manual-input" inputmode="numeric" autocomplete="one-time-code" maxlength="2" pattern="[0-9]{2}" placeholder="00" aria-label="Matching approval number">
+        <div class="qr-approval-actions">
+          <button id="qrApprovalGalleryButton" class="cancel-button" type="button">Choose from gallery</button>
+          <button id="qrApprovalScanAgain" class="cancel-button" type="button">Scan again</button>
+          <button id="qrApprovalConfirm" class="save-button" type="button">Approve sign-in</button>
+          <button id="qrApprovalCloseButton" class="cancel-button" type="button">Close scanner</button>
+        </div>
+        <div class="qr-scanner-hint">Swipe down to close</div>
+      </div>
+    </section>
+  </div>
+
+  
+
+  <script type="module">
+    import { client as passkeyClient } from "https://cdn.jsdelivr.net/npm/@passwordless-id/webauthn@2.4.0/+esm";
+    window.passkeyClient = passkeyClient;
+  </script>
+
+
+
+  <div
+    id="onboardingBackdrop"
+    class="onboarding-backdrop"
+    aria-hidden="true"
+  >
+    <section
+      class="onboarding-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="onboardingTitle"
+    >
+      <div class="onboarding-head">
+        <div>
+          <div id="onboardingStep" class="onboarding-step">Welcome · 1 of 4</div>
+          <h2 id="onboardingTitle" class="onboarding-title">Welcome to Ace ID</h2>
+        </div>
+        <iconify-icon icon="hugeicons:shield-01" width="28" height="28" aria-hidden="true"></iconify-icon>
+      </div>
+
+      <div id="onboardingViewport" class="onboarding-viewport">
+        <div id="onboardingTrack" class="onboarding-track"></div>
+      </div>
+      <div id="onboardingProgress" class="onboarding-progress" aria-hidden="true"></div>
+
+      <div class="onboarding-actions">
+        <button id="onboardingSkip" class="onboarding-skip" type="button">Skip tour</button>
+        <div style="display:flex;gap:8px;">
+          <button id="onboardingBack" type="button">Back</button>
+          <button id="onboardingNext" class="primary" type="button">Next</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <button id="qrScanFab" class="qr-scan-fab" type="button" aria-label="Scan QR code" title="Scan QR code"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="14" y="4" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="14" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M14 14h3v3h3M14 20h3M20 14v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg></button>
+  <div id="qrScannerBackdrop" class="qr-scanner-backdrop" aria-hidden="true"><section class="qr-scanner" role="dialog" aria-modal="true" aria-labelledby="qrScannerTitle"><header class="qr-scanner-head"><div><h2 id="qrScannerTitle" class="qr-scanner-title">Scan QR.</h2><p class="qr-scanner-copy">Point your camera at the Ace ID QR sign-in code.</p></div><button id="closeQrScanner" class="qr-scanner-close" type="button" aria-label="Close QR scanner"><svg class="ui-icon close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></svg></button></header><div class="qr-camera"><video id="qrCamera" autoplay muted playsinline aria-label="QR scanner camera preview"></video><div class="qr-camera-frame" aria-hidden="true"></div></div><div id="qrScannerStatus" class="qr-scanner-status" role="status" aria-live="polite">Starting camera…</div></section></div>
+
+  <script type="module" src="/js/account/app.js"></script>
+
+</body>
+</html>

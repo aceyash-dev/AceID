@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f2">
+  <meta
+    name="description"
+    content="Authorize an application with Ace ID."
+  >
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/system.css">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon.png">
+  <link rel="apple-touch-icon" href="/icon.png">
+  <title>Authorize — Ace ID</title>
+
+  <style>
+    @font-face {
+      font-family: "Instrument Serif";
+      src: url("/fonts/InstrumentSerif-Regular.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Satoshi";
+      src: url("/fonts/Satoshi-Variable.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 300 900;
+      font-display: swap;
+    }
+
+    :root {
+      --bg: #f5f5f2;
+      --fg: #111;
+      --muted: #70706b;
+      --line: #d1d1cc;
+      --soft-line: #e3e3de;
+      --surface: #fff;
+      --soft: #f8f8f5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Satoshi", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    a,
+    button,
+    .brand {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    img {
+      display: block;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: min(520px, 100%);
+      background: var(--surface);
+      border: 1px solid #111;
+    }
+
+    /* ─────────────────────────────
+       Brand
+    ───────────────────────────── */
+
+    .header {
+      padding: 28px 32px 0;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.035em;
+    }
+
+    .brand img {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+    }
+
+    /* ─────────────────────────────
+       Content
+    ───────────────────────────── */
+
+    .content {
+      padding: 28px 32px 32px;
+    }
+
+    /* ─────────────────────────────
+       User ↔ Application
+    ───────────────────────────── */
+
+    .switch-account {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .switch-account:hover {
+      background: var(--soft);
+      border-color: #111;
+    }
+
+    .connection {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 18px;
+      padding: 22px 0 26px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .identity {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .identity.application {
+      justify-content: flex-end;
+      text-align: right;
+    }
+
+    .identity-icon {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+
+    .identity-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .identity-info {
+      min-width: 0;
+    }
+
+    .identity-label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 750;
+      letter-spacing: .1em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .identity-name {
+      display: block;
+      max-width: 145px;
+      overflow: hidden;
+      color: var(--fg);
+      font-size: 14px;
+      font-weight: 750;
+      letter-spacing: -.025em;
+      line-height: 1.2;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .connector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+    }
+
+    .connector-line {
+      width: 14px;
+      height: 1px;
+      background: var(--line);
+    }
+
+    #client-icon-fallback {
+      display: none;
+      width: 100%;
+      height: 100%;
+      place-items: center;
+      color: var(--fg);
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    /* ─────────────────────────────
+       Heading
+    ───────────────────────────── */
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: "Instrument Serif", serif;
+      font-size: 42px;
+      line-height: .98;
+      font-weight: 400;
+      letter-spacing: -.035em;
+    }
+
+    .description {
+      margin: 13px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .client-name-text {
+      color: var(--fg);
+      font-weight: 700;
+    }
+
+    /* ─────────────────────────────
+       Permissions
+    ───────────────────────────── */
+
+    .permissions {
+      margin-top: 28px;
+    }
+
+    .permissions-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .permissions-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 750;
+      letter-spacing: -.01em;
+    }
+
+    .permissions-count {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .permission-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .permission {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      align-items: center;
+      gap: 13px;
+      min-height: 68px;
+      padding: 12px;
+      background: var(--soft);
+      border: 1px solid var(--soft-line);
+    }
+
+    .permission-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .permission-name {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -.015em;
+    }
+
+    .permission-description {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .empty-permissions {
+      padding: 15px;
+      background: var(--soft);
+      border: 1px solid var(--soft-line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* ─────────────────────────────
+       Actions
+    ───────────────────────────── */
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 26px;
+    }
+
+    button {
+      width: 100%;
+      height: 50px;
+      border: 1px solid #111;
+      border-radius: 0;
+      font-size: 14px;
+      font-weight: 750;
+      cursor: pointer;
+      transition:
+        background .15s ease,
+        color .15s ease;
+    }
+
+    .deny {
+      background: transparent;
+      color: var(--fg);
+    }
+
+    .deny:hover {
+      background: #e8e8e3;
+    }
+
+    .allow {
+      background: #111;
+      color: #fff;
+    }
+
+    .allow:hover {
+      background: #303030;
+    }
+
+    button:focus-visible {
+      outline: 2px solid #111;
+      outline-offset: 3px;
+    }
+
+    /* ─────────────────────────────
+       Security
+    ───────────────────────────── */
+
+    .revoke-note {
+      margin: 16px 0 0;
+      padding: 11px 12px;
+      border: 1px solid var(--soft-line);
+      background: var(--soft);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .actions button:disabled {
+      opacity: .55;
+      cursor: wait;
+    }
+
+    .revoke-note {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .permission {
+      transition: transform .12s ease, border-color .15s ease, background .15s ease;
+    }
+
+    .permission:hover {
+      border-color: #c4c4bf;
+      background: #fbfbf8;
+    }
+
+    .application-legal-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 16px;
+      margin-top: 18px;
+      font-size: 11px;
+    }
+
+    .application-legal-links[hidden] { display: none; }
+    .application-legal-links a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+    .application-legal-links a:hover { color: var(--fg); }
+
+    .security {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* ─────────────────────────────
+       Mobile
+    ───────────────────────────── */
+
+    @media (max-width: 520px) {
+      .page {
+        padding: 0;
+        place-items: stretch;
+      }
+
+      .card {
+        width: 100%;
+        min-height: 100vh;
+        border-width: 0 1px;
+      }
+
+      .header {
+        padding: 24px 20px 0;
+      }
+
+      .content {
+        padding: 26px 20px 24px;
+      }
+
+      h1 {
+        font-size: 38px;
+      }
+
+      .connection {
+        gap: 9px;
+      }
+
+      .switch-account {
+        margin-left: auto;
+      }
+
+      .identity {
+        gap: 8px;
+      }
+
+      .identity-icon {
+        width: 44px;
+        height: 44px;
+      }
+
+      .identity-name {
+        max-width: 105px;
+      }
+
+      .connector {
+        gap: 4px;
+      }
+
+      .connector-line {
+        width: 7px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .connection {
+        gap: 5px;
+      }
+
+      .identity-name {
+        max-width: 78px;
+      }
+
+      .identity-label {
+        font-size: 8px;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .allow {
+        order: -1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="ace-page">
+
+  <main class="page">
+
+    <section
+      class="card"
+      aria-labelledby="page-title"
+    >
+
+      <!-- Brand -->
+
+      <header class="header">
+
+        <a
+          class="brand"
+          href="/"
+          aria-label="Ace ID home"
+        >
+          <img
+            src="/icon.png"
+            alt=""
+            width="30"
+            height="30"
+          >
+
+          <span>Ace ID</span>
+        </a>
+
+      </header>
+
+
+      <div class="content">
+
+        <!--
+          USER ↔ APPLICATION
+
+          User is dynamic.
+          Application is dynamic.
+          Ace ID itself is NOT used as the left-side avatar.
+        -->
+
+        <div class="connection">
+
+          <!-- User -->
+
+          <div class="identity">
+
+            <div class="identity-icon">
+
+              <img
+                id="user-pfp"
+                src="/icon.png"
+                alt=""
+                width="48"
+                height="48"
+              >
+
+            </div>
+
+            <div class="identity-info">
+
+              <span class="identity-label">
+                Account
+              </span>
+
+              <span
+                id="user-name"
+                class="identity-name"
+              >
+                Your Ace ID
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <!-- Connection -->
+
+          <div
+            class="connector"
+            aria-hidden="true"
+          >
+
+            <span class="connector-line"></span>
+
+            <iconify-icon
+              icon="hugeicons:arrow-left-right"
+              width="20"
+              height="20"
+            ></iconify-icon>
+
+            <span class="connector-line"></span>
+
+          </div>
+
+
+          <!-- Application -->
+
+          <div class="identity application">
+
+            <div class="identity-info">
+
+              <span class="identity-label">
+                Application
+              </span>
+
+              <span
+                id="client-name-top"
+                class="identity-name"
+              >
+                Application
+              </span>
+
+            </div>
+
+
+            <div class="identity-icon">
+
+              <img
+                id="client-icon"
+                src=""
+                alt=""
+                width="48"
+                height="48"
+                hidden
+              >
+
+              <span
+                id="client-icon-fallback"
+                aria-hidden="true"
+              >🌐︎</span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <a
+          class="switch-account"
+          href="/interaction/{{INTERACTION_UID}}?switch=1"
+        >
+          <iconify-icon icon="hugeicons:exchange-01"></iconify-icon>
+          Switch identity
+        </a>
+
+
+        <!-- Heading -->
+
+        <p class="eyebrow">
+          Authorization request
+        </p>
+
+        <h1 id="page-title">
+          Connect to Ace ID
+        </h1>
+
+        <p class="description">
+          Review the information below before continuing. You can revoke this access later from your Ace ID.
+
+          <strong
+            id="client-name"
+            class="client-name-text"
+          >
+            This application
+          </strong>
+
+          wants to use your Ace ID.
+
+        </p>
+
+
+        <!-- Dynamic permissions -->
+
+        <section
+          id="permissions-section"
+          class="permissions"
+          aria-labelledby="permissions-title"
+        >
+
+          <div class="permissions-header">
+
+            <h2
+              id="permissions-title"
+              class="permissions-title"
+            >
+              Requested information
+            </h2>
+
+            <span
+              id="permissions-count"
+              class="permissions-count"
+            ></span>
+
+          </div>
+
+
+          <div
+            id="permission-list"
+            class="permission-list"
+          ></div>
+
+
+          <div
+            id="empty-permissions"
+            class="empty-permissions"
+            hidden
+          >
+            This application isn't requesting any
+            additional personal information.
+          </div>
+
+        </section>
+
+
+        <!-- Actions -->
+
+        <form
+          method="post"
+          action="{{FORM_ACTION}}"
+        >
+          <input id="decisionInput" type="hidden" name="decision" value="" disabled>
+          <div class="actions">
+
+            <button
+              class="deny"
+              type="submit"
+              name="decision"
+              value="deny"
+            >
+              Deny
+            </button>
+
+            <button
+              class="allow"
+              id="allowButton"
+              type="submit"
+              name="decision"
+              value="allow"
+            >
+              Allow access
+            </button>
+
+          </div>
+
+        </form>
+
+
+        <p class="revoke-note">
+          You can review and revoke this app's Ace ID access later from Ace ID. Allowing access does not give the app your Ace ID password.
+        </p>
+
+        <nav id="application-legal-links" class="application-legal-links" aria-label="Application legal information" hidden></nav>
+
+        <!-- Security -->
+
+        <div class="security">
+
+          <iconify-icon
+            icon="hugeicons:shield-01"
+            width="15"
+            height="15"
+            aria-hidden="true"
+          ></iconify-icon>
+
+          <span>
+            Secure authorization by Ace ID
+          </span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!--
+    Server-injected consent data.
+
+    This MUST come before the logic below so the
+    `window.ACE_ID_CONSENT = window.ACE_ID_CONSENT || {…}`
+    fallback in the script does not clobber real values.
+  -->
+
+  <script>
+    window.ACE_ID_CONSENT = {{CONSENT_DATA}};
+  </script>
+
+
+  <!-- Hugeicons / Iconify -->
+
+  <script
+    src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"
+    defer
+  ></script>
+
+
+  <script>
+    const consentForm = document.querySelector('form[action]');
+    const allowButton = document.getElementById("allowButton");
+    const denyButton = document.querySelector(".deny");
+
+    consentForm?.addEventListener("submit", (event) => {
+      const submitter = event.submitter;
+      const decision = submitter?.value === "allow"
+        ? "allow"
+        : submitter?.value === "deny"
+          ? "deny"
+          : "";
+
+      // Never turn an ambiguous or scripted submission into consent.
+      if (!decision) {
+        event.preventDefault();
+        return;
+      }
+
+      // Form data is constructed after this submit event. Disabling the clicked
+      // submitter here can silently remove its name/value, so transfer the
+      // explicit decision to a hidden successful control before disabling UI.
+      const decisionInput = document.getElementById("decisionInput");
+      if (!decisionInput) {
+        event.preventDefault();
+        return;
+      }
+      decisionInput.value = decision;
+      decisionInput.disabled = false;
+      submitter.removeAttribute("name");
+
+      if (allowButton) { allowButton.disabled = true; allowButton.setAttribute("aria-busy", "true"); }
+      if (denyButton) { denyButton.disabled = true; denyButton.setAttribute("aria-busy", "true"); }
+
+      submitter.textContent =
+        decision === "allow"
+          ? "Allowing…"
+          : "Cancelling…";
+
+      // If the authorization server or network never completes navigation,
+      // restore a usable form and explain that the request can be retried.
+      window.setTimeout(() => {
+        if (document.visibilityState === "hidden") return;
+        if (!allowButton?.disabled && !denyButton?.disabled) return;
+
+        if (allowButton) {
+          allowButton.disabled = false;
+          allowButton.removeAttribute("aria-busy");
+          allowButton.textContent = "Allow access";
+        }
+        if (denyButton) {
+          denyButton.disabled = false;
+          denyButton.removeAttribute("aria-busy");
+          denyButton.textContent = "Deny";
+        }
+
+        let status = document.getElementById("consent-submit-status");
+        if (!status) {
+          status = document.createElement("p");
+          status.id = "consent-submit-status";
+          status.setAttribute("role", "status");
+          status.setAttribute("aria-live", "polite");
+          status.className = "revoke-note";
+          consentForm?.insertAdjacentElement("afterend", status);
+        }
+        status.textContent = "Authorization did not finish. Check your connection and try again.";
+      }, 12000);
+    });
+
+    /*
+     * The OIDC interaction route injects the
+     * actual values for the current request
+     * as window.ACE_ID_CONSENT.
+     *
+     * Shape:
+     *
+     * {
+     *   userName: "Ace Yash",
+     *   userPicture: "https://example.com/avatar.webp",
+     *   clientName: "Typace",
+     *   clientIcon: "https://typace.example/icon.png",
+     *   scopes: ["openid", "profile", "email"]
+     * }
+     */
+
+    window.ACE_ID_CONSENT =
+      window.ACE_ID_CONSENT || {
+        userName: "Your Ace ID",
+        userPicture: "",
+        clientName: "Application",
+        clientIcon: "",
+        scopes: []
+      };
+
+
+    const data =
+      window.ACE_ID_CONSENT;
+
+    // Show only explicitly configured, valid HTTPS legal URLs.
+    const legalLinks = document.getElementById("application-legal-links");
+    for (const [key, label] of [
+      ["privacyPolicyUri", "Privacy"],
+      ["termsOfServiceUri", "Terms"]
+    ]) {
+      const rawUrl = typeof data[key] === "string" ? data[key].trim() : "";
+      if (!rawUrl) continue;
+      try {
+        const url = new URL(rawUrl);
+        if (url.protocol !== "https:" || url.username || url.password) continue;
+        const anchor = document.createElement("a");
+        anchor.href = url.href;
+        anchor.textContent = label;
+        anchor.target = "_blank";
+        anchor.rel = "noopener noreferrer";
+        legalLinks?.appendChild(anchor);
+      } catch {
+        // Missing or invalid configuration remains hidden.
+      }
+    }
+    if (legalLinks?.childElementCount) legalLinks.hidden = false;
+
+
+    /* ─────────────────────────────
+       User
+    ───────────────────────────── */
+
+    const userName =
+      document.getElementById(
+        "user-name"
+      );
+
+    const userPfp =
+      document.getElementById(
+        "user-pfp"
+      );
+
+
+    userName.textContent =
+      data.userName ||
+      "Your Ace ID";
+
+
+    /*
+     * User profile picture.
+     *
+     * If the account has no PFP,
+     * use the Ace ID icon as fallback.
+     */
+
+    if (data.userPicture) {
+
+      userPfp.src =
+        String(data.userPicture);
+
+    } else {
+
+      userPfp.src =
+        "/icon.png";
+    }
+
+
+    userPfp.alt =
+      data.userName ||
+      "Your Ace ID";
+
+
+    userPfp.addEventListener(
+      "error",
+      () => {
+        // Avoid an infinite error loop if the local fallback is also missing.
+        userPfp.removeAttribute("src");
+        userPfp.hidden = true;
+        const avatarBox = userPfp.closest(".identity-icon");
+        if (avatarBox) {
+          avatarBox.textContent = (String(data.userName || "A").trim().charAt(0) || "A").toUpperCase();
+          avatarBox.setAttribute("aria-label", "Account avatar");
+          avatarBox.style.fontWeight = "750";
+        }
+      },
+      { once: true }
+    );
+
+
+    /* ─────────────────────────────
+       Application
+    ───────────────────────────── */
+
+    const clientName =
+      String(
+        data.clientName ||
+        "Application"
+      );
+
+
+    document
+      .getElementById(
+        "client-name"
+      )
+      .textContent =
+      clientName;
+
+
+    document
+      .getElementById(
+        "client-name-top"
+      )
+      .textContent =
+      clientName;
+
+
+    const clientIcon =
+      document.getElementById(
+        "client-icon"
+      );
+
+    const clientIconFallback =
+      document.getElementById(
+        "client-icon-fallback"
+      );
+
+
+    /*
+     * Application icon:
+     *
+     * registered icon → show it
+     * no registered icon → 🌐
+     * broken registered icon → 🌐
+     */
+
+    const icon =
+      typeof data.clientIcon === "string"
+        ? data.clientIcon.trim()
+        : "";
+
+    if (
+      icon &&
+      icon !== "null" &&
+      icon !== "undefined"
+    ) {
+
+      // Register the fallback before assigning src. A cached or immediately
+      // rejected URL can fail before a listener added afterward is attached.
+      clientIcon.addEventListener(
+        "error",
+        () => {
+          clientIcon.hidden = true;
+          clientIcon.removeAttribute("src");
+          clientIconFallback.textContent =
+            (String(clientName).trim().charAt(0) || "A").toUpperCase();
+          clientIconFallback.style.display = "grid";
+        },
+        { once: true }
+      );
+
+      clientIcon.hidden = false;
+      clientIconFallback.style.display = "none";
+      clientIcon.src = icon;
+
+    } else {
+
+      clientIcon.hidden =
+        true;
+
+      clientIconFallback.textContent =
+        (String(clientName).trim().charAt(0) || "A").toUpperCase();
+
+      clientIconFallback.style.display =
+        "grid";
+    }
+
+
+    clientIcon.alt =
+      clientName;
+
+
+    /* ─────────────────────────────
+       Permission definitions
+    ───────────────────────────── */
+
+    const permissionDefinitions = {
+
+      openid: {
+        icon: "hugeicons:shield-01",
+
+        title: "Ace ID",
+
+        description:
+          "Your account information for this sign-in."
+      },
+
+
+      profile: {
+        icon: "hugeicons:user",
+
+        title: "Profile",
+
+        description:
+          "Your name, username, and profile picture."
+      },
+
+
+      email: {
+        icon: "hugeicons:mail-01",
+
+        title: "Email address",
+
+        description:
+          "The email address associated with your Ace ID."
+      },
+
+
+      name: {
+        icon: "hugeicons:user-account",
+
+        title: "Your name",
+
+        description:
+          "The name associated with your Ace ID."
+      },
+
+
+      username: {
+        icon: "hugeicons:user",
+
+        title: "Username",
+
+        description:
+          "Your Ace ID username."
+      },
+
+
+      picture: {
+        icon: "hugeicons:image-02",
+
+        title: "Profile picture",
+
+        description:
+          "Your current Ace ID profile picture."
+      }
+,
+
+
+      offline_access: {
+        icon: "hugeicons:refresh",
+
+        title: "Stay signed in",
+
+        description:
+          "Allow this application to refresh your access without asking again."
+      }
+
+    };
+
+
+    /* ─────────────────────────────
+       Render requested permissions
+    ───────────────────────────── */
+
+    const permissionList =
+      document.getElementById(
+        "permission-list"
+      );
+
+
+    const emptyPermissions =
+      document.getElementById(
+        "empty-permissions"
+      );
+
+
+    const permissionsCount =
+      document.getElementById(
+        "permissions-count"
+      );
+
+
+    const requestedScopes =
+      Array.isArray(data.scopes)
+        ? data.scopes
+        : [];
+
+
+    /*
+     * Only render permissions that Ace ID
+     * has a user-facing definition for.
+     */
+
+    const permissions =
+      requestedScopes
+        .filter(scope =>
+          Object.prototype.hasOwnProperty.call(
+            permissionDefinitions,
+            scope
+          )
+        )
+        .map(scope => ({
+          scope,
+          ...permissionDefinitions[scope]
+        }));
+
+
+    if (permissions.length === 0) {
+
+      emptyPermissions.hidden =
+        false;
+
+      permissionsCount.hidden =
+        true;
+
+    } else {
+
+      permissionsCount.textContent =
+        `${permissions.length} ${
+          permissions.length === 1
+            ? "permission"
+            : "permissions"
+        }`;
+
+
+      for (
+        const permission
+        of permissions
+      ) {
+
+        const item =
+          document.createElement(
+            "article"
+          );
+
+        item.className =
+          "permission";
+
+
+        /* Icon */
+
+        const iconBox =
+          document.createElement(
+            "div"
+          );
+
+        iconBox.className =
+          "permission-icon";
+
+
+        const icon =
+          document.createElement(
+            "iconify-icon"
+          );
+
+        icon.setAttribute(
+          "icon",
+          permission.icon
+        );
+
+        icon.setAttribute(
+          "width",
+          "20"
+        );
+
+        icon.setAttribute(
+          "height",
+          "20"
+        );
+
+        icon.setAttribute(
+          "aria-hidden",
+          "true"
+        );
+
+
+        iconBox.appendChild(
+          icon
+        );
+
+
+        /* Text */
+
+        const text =
+          document.createElement(
+            "div"
+          );
+
+
+        const title =
+          document.createElement(
+            "p"
+          );
+
+        title.className =
+          "permission-name";
+
+        title.textContent =
+          permission.title;
+
+
+        const description =
+          document.createElement(
+            "p"
+          );
+
+        description.className =
+          "permission-description";
+
+        description.textContent =
+          permission.description;
+
+
+        text.appendChild(title);
+        text.appendChild(description);
+
+
+        item.appendChild(iconBox);
+        item.appendChild(text);
+
+
+        permissionList.appendChild(
+          item
+        );
+      }
+    }
+
+  </script>
+
+  <script src="/js/cookie-banner.js" defer></script>
+</body>
+</html>
