@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f5f2">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="description" content="Manage applications and services connected to your Ace ID.">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon.png">
+  <link rel="apple-touch-icon" href="/icon.png">
+  <title>Connected services — Ace ID</title>
+  <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
+  <style>
+    @font-face{font-family:Satoshi;src:url("/fonts/Satoshi-Variable.woff2") format("woff2");font-style:normal;font-weight:300 900;font-display:swap}
+    @font-face{font-family:"Instrument Serif";src:url("/fonts/InstrumentSerif-Regular.woff2") format("woff2");font-style:normal;font-weight:400;font-display:swap}
+    :root{--bg:#f5f5f2;--fg:#111;--muted:#70706b;--line:#d1d1cc;--surface:#fff;--danger:#b42318}
+    *{box-sizing:border-box}
+    html{min-height:100%;background:var(--bg)}
+    body{margin:0;min-height:100vh;background:var(--bg);color:var(--fg);font-family:Satoshi,sans-serif;-webkit-font-smoothing:antialiased}
+    button,a{-webkit-tap-highlight-color:transparent}
+    button{font:inherit;border-radius:0}
+    a{color:inherit}
+    .page{width:min(820px,100%);margin:0 auto;padding:28px 24px 72px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:64px}
+    .brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-size:15px;font-weight:750;letter-spacing:-.035em}
+    .brand img{width:30px;height:30px;object-fit:contain}
+    .back{display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 12px;border:1px solid var(--line);background:transparent;font-size:12px;font-weight:750;text-decoration:none}
+    .back:hover{background:#fff;border-color:#111}
+    .eyebrow{color:var(--muted);font-size:11px;font-weight:750;letter-spacing:.13em;text-transform:uppercase}
+    h1{margin:10px 0 10px;font-family:"Instrument Serif",serif;font-size:clamp(52px,8vw,78px);font-weight:400;line-height:.88;letter-spacing:-.05em}
+    .intro{max-width:600px;margin:0;color:var(--muted);font-size:15px;line-height:1.55}
+    .status{min-height:22px;margin:30px 0 12px;color:var(--muted);font-size:12px}
+    .services{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}
+    .service{grid-column:span 12;display:flex;transition:transform .12s ease,box-shadow .15s ease,border-color .15s ease;align-items:center;gap:16px;padding:18px;border:1px solid var(--line);background:var(--surface)}
+    .service:hover{border-color:#bdbdb8;box-shadow:0 8px 24px rgba(17,17,17,.05)}
+    .service-icon{width:48px;height:48px;display:grid;place-items:center;flex:0 0 auto;border:1px solid var(--line);background:#fff;overflow:hidden}
+    .service-icon img{width:100%;height:100%;object-fit:contain}
+    .service-copy{min-width:0;flex:1}
+    .service-name{font-size:15px;font-weight:750;letter-spacing:-.02em}
+    .service-meta{margin-top:5px;color:var(--muted);font-size:12px;line-height:1.45}
+    .service-actions{display:flex;flex-wrap:wrap;gap:7px}.service:nth-child(3n+1){grid-column:span 7}.service:nth-child(3n+2){grid-column:span 5}.service:nth-child(3n){grid-column:span 5}
+    .action{height:38px;padding:0 12px;border:1px solid var(--line);background:transparent;color:var(--fg);font-size:12px;font-weight:750;cursor:pointer}
+    .action:hover{background:#fff;border-color:#111}
+    .action.danger{border-color:#d7aaa6;color:var(--danger)}
+    .action.danger:hover{background:#fff5f4;border-color:var(--danger)}
+    .empty{padding:30px 18px;border:1px solid var(--line);background:#fff;color:var(--muted);font-size:13px}
+    .empty strong{color:var(--fg);font-size:13px}.empty span{display:inline-block;margin-top:5px}.note{margin-top:22px;color:var(--muted);font-size:12px;line-height:1.55}
+    @media(max-width:620px){
+      .services{grid-template-columns:1fr}
+      .service,.service:nth-child(3n+1),.service:nth-child(3n+2),.service:nth-child(3n){grid-column:auto}
+      .page{padding:20px 16px 48px}
+      .topbar{margin-bottom:48px}
+      .service{align-items:flex-start;flex-wrap:wrap}
+      .service-copy{flex-basis:calc(100% - 64px)}
+      .service-actions{width:100%;padding-left:64px}
+      .action{flex:1}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <a class="brand" href="/account" aria-label="Back to Ace ID">
+        <img src="/icon.png" alt="" width="30" height="30">
+        <span>Ace ID</span>
+      </a>
+      <a class="back" href="/account">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m14.5 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Ace ID
+      </a>
+    </header>
+
+    <div class="eyebrow">Access</div>
+    <h1>Connected services.</h1>
+    <p class="intro">
+      Review applications that have access to your Ace ID. Revoking a service removes its Ace ID authorization and active OIDC grants.
+    </p>
+
+    <div id="status" class="status" aria-live="polite">Loading connected services…</div>
+    <section id="services" class="services" aria-live="polite"></section>
+
+    <p class="note">
+      Signing out of an application itself is controlled by that application. Revoking it here removes its Ace ID access.
+    </p>
+  </main>
+
+  <script>
+    const services = document.getElementById("services");
+    const status = document.getElementById("status");
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[char]));
+    }
+
+    function formatDate(value) {
+      if (!value) return "Connection time unavailable";
+      const date = new Date(value);
+      return Number.isFinite(date.getTime())
+        ? "Connected " + date.toLocaleString()
+        : "Connection time unavailable";
+    }
+
+    function isHttpImageUrl(value) {
+      try {
+        const url = new URL(String(value || ""), location.origin);
+        return (url.protocol === "https:" || url.protocol === "http:") && !url.username && !url.password && !url.hash;
+      } catch { return false; }
+    }
+
+    function createServiceCard(service) {
+      const article = document.createElement("article");
+      article.className = "service";
+      const iconWrap = document.createElement("div");
+      iconWrap.className = "service-icon";
+      const icon = document.createElement("img");
+      icon.alt = "";
+      icon.loading = "lazy";
+      icon.referrerPolicy = "no-referrer";
+      icon.src = isHttpImageUrl(service.icon) ? service.icon : "/icon.png";
+      icon.addEventListener("error", () => { icon.src = "/icon.png"; }, { once: true });
+      iconWrap.appendChild(icon);
+      const copy = document.createElement("div");
+      copy.className = "service-copy";
+      const name = document.createElement("div");
+      name.className = "service-name";
+      name.textContent = service.name || service.client_id || "Connected service";
+      const meta = document.createElement("div");
+      meta.className = "service-meta";
+      meta.textContent = formatDate(service.connected_at);
+      copy.append(name, meta);
+      const actions = document.createElement("div");
+      actions.className = "service-actions";
+      const button = document.createElement("button");
+      button.className = "action danger";
+      button.type = "button";
+      button.dataset.clientId = String(service.client_id || "");
+      button.textContent = "Revoke access";
+      actions.appendChild(button);
+      article.append(iconWrap, copy, actions);
+      return article;
+    }
+
+    function render(list) {
+      services.replaceChildren();
+      if (!list.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        const title = document.createElement("strong");
+        title.textContent = "No connected services.";
+        const copy = document.createElement("span");
+        copy.textContent = "Applications will appear here after you authorize them with Ace ID.";
+        empty.append(title, document.createElement("br"), copy);
+        services.appendChild(empty);
+        status.textContent = "";
+        return;
+      }
+      status.textContent = list.length + (list.length === 1 ? " connected service" : " connected services");
+      const fragment = document.createDocumentFragment();
+      for (const service of list) fragment.appendChild(createServiceCard(service));
+      services.appendChild(fragment);
+    }
+
+    async function load() {
+      try {
+        const response = await fetch("/api/account/services", {
+          credentials: "same-origin",
+          cache: "no-store",
+          headers: { Accept: "application/json" }
+        });
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401 || response.status === 403) {
+          location.replace("/login");
+          return;
+        }
+        if (!response.ok) throw new Error(data.error || "Unable to load connected services.");
+        render(data.services || []);
+      } catch (error) {
+        status.textContent = error.message || "Unable to load connected services.";
+      }
+    }
+
+    services.addEventListener("click", async event => {
+      const button = event.target.closest("[data-client-id]");
+      if (!button || button.disabled) return;
+
+      const clientId = button.dataset.clientId;
+      if (!clientId) return;
+      if (!confirm("Revoke this service's Ace ID access? This will remove its active Ace ID authorization.")) return;
+
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
+      button.textContent = "Revoking…";
+
+      try {
+        const response = await fetch("/api/account/services/" + encodeURIComponent(clientId), {
+          method: "DELETE",
+          credentials: "same-origin",
+          headers: { Accept: "application/json" }
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || "Unable to revoke service access.");
+        await load();
+      } catch (error) {
+        button.disabled = false;
+        button.removeAttribute("aria-busy");
+        button.textContent = "Revoke access";
+        status.textContent = error.message || "Unable to revoke service access.";
+      }
+    });
+
+    load();
+  </script>
+</body>
+</html>
