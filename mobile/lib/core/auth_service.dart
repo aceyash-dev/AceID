@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class IdentityProfile {
@@ -88,30 +89,52 @@ class OidcAuthService {
     if (clientId.trim().isEmpty) {
       throw const AuthConfigurationException('Native sign-in needs the Ace ID mobile client ID. Use web sign-in until it is registered.');
     }
-    final response = await _appAuth.authorizeAndExchangeCode(AuthorizationTokenRequest(
-      clientId, redirectUrl, issuer: issuer,
-      scopes: const ['openid', 'profile', 'email', 'offline_access'],
-    ));
+    final AuthorizationTokenResponse response;
+    try {
+      response = await _appAuth.authorizeAndExchangeCode(AuthorizationTokenRequest(
+        clientId, redirectUrl, issuer: issuer,
+        scopes: const ['openid', 'profile', 'email', 'offline_access'],
+      ));
+    } on PlatformException catch (error) {
+      final code = error.code.trim().isEmpty ? 'oauth_platform_error' : error.code;
+      throw AuthConfigurationException(_messageForAuthError(code, error.message));
+    } catch (error) {
+      throw AuthConfigurationException(
+        'Sign-in could not complete (${error.runtimeType}). Check the mobile OAuth client registration and try again.',
+      );
+    }
     final token = response.accessToken;
     if (token == null || token.isEmpty) {
-      return null;
+      throw const AuthConfigurationException('The identity provider returned no access token. Check the OAuth client and authorization-code exchange.');
     }
     final idToken = response.idToken;
-    final claims = idToken == null ? <String, dynamic>{} : _decodeClaims(idToken);
+    if (idToken == null || idToken.isEmpty) {
+      throw const AuthConfigurationException('The identity provider returned no ID token. Ensure the mobile client requests the openid scope.');
+    }
+    final claims = _decodeClaims(idToken);
+    if ((claims['sub'] as String? ?? '').isEmpty) {
+      throw const AuthConfigurationException('The identity provider returned an invalid ID token. Check the issuer and OIDC client configuration.');
+    }
     final expiry = response.accessTokenExpirationDateTime ?? DateTime.now().add(const Duration(minutes: 5));
     await _storage.write(key: _tokenKey, value: token);
     final refreshToken = response.refreshToken;
     if (refreshToken != null) {
       await _storage.write(key: _refreshKey, value: refreshToken);
     }
-    if (idToken != null) {
-      await _storage.write(key: _idTokenKey, value: idToken);
-    } else {
-      await _storage.delete(key: _idTokenKey);
-    }
+    await _storage.write(key: _idTokenKey, value: idToken);
     await _storage.write(key: _profileKey, value: jsonEncode(claims));
     await _storage.write(key: _expiryKey, value: expiry.toIso8601String());
     return _profileFromClaims(claims, expiry);
+  }
+
+  String _messageForAuthError(String code, String? details) {
+    final normalized = code.toLowerCase();
+    if (normalized.contains('cancel')) return 'Sign-in was cancelled. Tap Continue with Ace ID to try again.';
+    if (normalized.contains('network') || normalized.contains('connection')) return 'Could not reach the identity provider. Check your connection and try again.';
+    if (normalized.contains('redirect') || normalized.contains('callback')) return 'The sign-in callback was rejected. Check the mobile client redirect URI: $redirectUrl.';
+    if (normalized.contains('client') || normalized.contains('authorize') || normalized.contains('token')) return 'The identity provider rejected the mobile sign-in ($code). Verify the registered mobile client ID and redirect URI.';
+    final safeDetails = (details ?? '').replaceAll(RegExp(r'[\r\n]+'), ' ').trim();
+    return safeDetails.isEmpty ? 'Sign-in failed ($code). Verify the mobile OAuth client configuration.' : 'Sign-in failed ($code): ${safeDetails.substring(0, safeDetails.length.clamp(0, 180))}';
   }
 
   IdentityProfile _profileFromClaims(Map<String, dynamic> claims, DateTime expiry) => IdentityProfile(
