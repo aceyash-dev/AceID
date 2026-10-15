@@ -1,10 +1,12 @@
 # AceID
 
-Open-source client applications for Ace ID.
+**AceID is open source.** This is the official repository for the AceID client applications and project source code.
+
+Repository: [aceyash-dev/AceID](https://github.com/aceyash-dev/AceID)
 
 - `public/`: existing web frontend assets, moved without UI/source edits.
 - `mobile/`: Flutter Android app. Application ID: `app.tab.aid`.
-- Backend and OIDC provider remain in [aceyash-dev/ace-id](https://github.com/aceyash-dev/ace-id).
+- The backend and OIDC provider remain in [aceyash-dev/ace-id](https://github.com/aceyash-dev/ace-id).
 - Product documentation remains in [aceyash-dev/ace-docs](https://github.com/aceyash-dev/ace-docs).
 
 ## Android builds
