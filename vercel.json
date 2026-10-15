@@ -1,15 +1,112 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "headers": [
+    {
+      "source": "/.well-known/openid-configuration",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300"
+        }
+      ]
+    }
+  ],
   "rewrites": [
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/register", "destination": "/register.html" },
-    { "source": "/forgot-password", "destination": "/forgot-password.html" },
-    { "source": "/reset-password", "destination": "/reset-password.html" },
-    { "source": "/mfa", "destination": "/mfa.html" },
-    { "source": "/account", "destination": "/account.html" },
-    { "source": "/consent", "destination": "/consent.html" },
-    { "source": "/services", "destination": "/services.html" },
-    { "source": "/subscription", "destination": "/subscription.html" },
-    { "source": "/cookie-policy", "destination": "/cookie-policy.html" }
+    {
+      "source": "/auth",
+      "destination": "/api/oidc/auth"
+    },
+    {
+      "source": "/token",
+      "destination": "/api/oidc/token"
+    },
+    {
+      "source": "/me",
+      "destination": "/api/oidc/me"
+    },
+    {
+      "source": "/jwks",
+      "destination": "/api/oidc/jwks"
+    },
+    {
+      "source": "/reg",
+      "destination": "/api/oidc/reg"
+    },
+    {
+      "source": "/device",
+      "destination": "/api/oidc/device"
+    },
+    {
+      "source": "/session/:path*",
+      "destination": "/api/oidc/session/:path*"
+    },
+    {
+      "source": "/interaction/:path*",
+      "destination": "/api/oidc/interaction/:path*"
+    },
+    {
+      "source": "/token/:path*",
+      "destination": "/api/oidc/token/:path*"
+    },
+    {
+      "source": "/request/:path*",
+      "destination": "/api/oidc/request/:path*"
+    },
+    {
+      "source": "/connect/:path*",
+      "destination": "/api/oidc/connect/:path*"
+    },
+    {
+      "source": "/health/live",
+      "destination": "/api/oidc/health/live"
+    },
+    {
+      "source": "/health/ready",
+      "destination": "/api/oidc/health/ready"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/register.html"
+    },
+    {
+      "source": "/forgot-password",
+      "destination": "/forgot-password.html"
+    },
+    {
+      "source": "/reset-password",
+      "destination": "/reset-password.html"
+    },
+    {
+      "source": "/mfa",
+      "destination": "/mfa.html"
+    },
+    {
+      "source": "/account",
+      "destination": "/account.html"
+    },
+    {
+      "source": "/consent",
+      "destination": "/consent.html"
+    },
+    {
+      "source": "/services",
+      "destination": "/services.html"
+    },
+    {
+      "source": "/subscription",
+      "destination": "/subscription.html"
+    },
+    {
+      "source": "/cookie-policy",
+      "destination": "/cookie-policy.html"
+    }
   ]
 }

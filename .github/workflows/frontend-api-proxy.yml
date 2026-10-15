@@ -3,10 +3,22 @@ name: Frontend API proxy
 on:
   push:
     branches: ["main"]
-    paths: ["api/**", "test/api-proxy.test.cjs", ".github/workflows/frontend-api-proxy.yml"]
+    paths:
+      - "api/**"
+      - "public/.well-known/**"
+      - "test/api-proxy.test.cjs"
+      - "test/oidc-discovery.test.cjs"
+      - "vercel.json"
+      - ".github/workflows/frontend-api-proxy.yml"
   pull_request:
     branches: ["main"]
-    paths: ["api/**", "test/api-proxy.test.cjs", ".github/workflows/frontend-api-proxy.yml"]
+    paths:
+      - "api/**"
+      - "public/.well-known/**"
+      - "test/api-proxy.test.cjs"
+      - "test/oidc-discovery.test.cjs"
+      - "vercel.json"
+      - ".github/workflows/frontend-api-proxy.yml"
 
 permissions:
   contents: read
@@ -20,6 +32,8 @@ jobs:
         with:
           node-version: 22
       - name: Check JavaScript syntax
-        run: node --check 'api/[...path].js'
-      - name: Run API proxy tests
-        run: node --test test/api-proxy.test.cjs
+        run: |
+          node --check 'api/[...path].js'
+          node --check 'api/oidc/[...path].js'
+      - name: Run proxy and OIDC discovery tests
+        run: node --test test/api-proxy.test.cjs test/oidc-discovery.test.cjs
