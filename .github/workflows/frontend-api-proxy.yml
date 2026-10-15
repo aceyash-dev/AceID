@@ -1,0 +1,25 @@
+name: Frontend API proxy
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["api/**", "test/api-proxy.test.cjs", ".github/workflows/frontend-api-proxy.yml"]
+  pull_request:
+    branches: ["main"]
+    paths: ["api/**", "test/api-proxy.test.cjs", ".github/workflows/frontend-api-proxy.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test-api-proxy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: node --check 'api/[...path].js'
+      - name: Run API proxy tests
+        run: node --test test/api-proxy.test.cjs
