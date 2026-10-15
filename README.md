@@ -1,18 +1,20 @@
 # AceID
 
-**AceID is open source.** This is the official repository for the AceID client applications and project source code.
+**AceID is open source.** This repository contains the AceID client applications and frontend assets.
 
-Repository: [aceyash-dev/AceID](https://github.com/aceyash-dev/AceID)
+Official repository: [aceyash-dev/AceID](https://github.com/aceyash-dev/AceID)
 
-- `public/`: existing web frontend assets, moved without UI/source edits.
-- `mobile/`: Flutter Android app. Application ID: `app.tab.aid`.
-- The backend and OIDC provider remain in [aceyash-dev/ace-id](https://github.com/aceyash-dev/ace-id).
-- Product documentation remains in [aceyash-dev/ace-docs](https://github.com/aceyash-dev/ace-docs).
+- `public/`: web frontend assets.
+- `mobile/`: Flutter Android account app. Application ID: `app.tab.aid`.
+- The Node.js identity provider and backend APIs live in [aceyash-dev/ace-id](https://github.com/aceyash-dev/ace-id).
+- Product and technical documentation live in [aceyash-dev/ace-docs](https://github.com/aceyash-dev/ace-docs).
 
 ## Android builds
 
-The Android workflow builds only split release APKs for `armeabi-v7a` and `arm64-v8a`; it does not build x86_64 or a universal APK. Configure the public OIDC client ID as the repository Actions variable `ACEID_MOBILE_CLIENT_ID`. Never place a client secret in the app.
+The [Android workflow](https://github.com/aceyash-dev/AceID/blob/main/.github/workflows/android.yml) runs on changes under `mobile/**` or changes to the workflow itself on `main`, plus manual dispatch. CI builds split release APKs for `armeabi-v7a` and `arm64-v8a` only; it does not build x86_64 or a universal APK. Configure the public OIDC client ID as the GitHub Actions repository variable `ACEID_MOBILE_CLIENT_ID`. Never put a client secret in the app.
+
+CI APKs are temporary test artifacts, retained for 14 days, not versioned GitHub Releases. Production store releases require protected release signing.
 
 ## License
 
-MIT. See `LICENSE`.
+MIT. See [`LICENSE`](https://github.com/aceyash-dev/AceID/blob/main/LICENSE).

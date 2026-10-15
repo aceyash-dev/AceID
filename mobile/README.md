@@ -1,27 +1,27 @@
 # Ace ID for Android
 
-This is the native Flutter account app for Ace ID, not a developer console.
+This is the native Flutter account app for Ace ID, not a developer console. The app source lives in the public [aceyash-dev/AceID repository](https://github.com/aceyash-dev/AceID/tree/main/mobile).
 
 ## Account features
 
-- Sign in through Ace ID OpenID Connect.
-- Store tokens using Android secure storage.
+- Sign in through Ace ID OpenID Connect using the system browser and Authorization Code + PKCE.
+- Store credentials using platform secure storage.
 - View and edit account profile details.
-- Review security activity and signed-in device information.
-- Review connected apps and revoke app authorization.
-- View current membership, billing-period information and plan limits in an in-app bottom sheet.
+- Review recent security activity and signed-in device sessions.
+- Review connected apps and revoke an app's authorization.
+- View membership, billing-period information and plan limits.
 - Start paid checkout through the existing Ace ID backend. Subscription status is never granted from a client-side payment result.
-- Open existing password, passkey, two-factor, device-session, and account-deletion controls on the authenticated Ace ID website.
+- Open password, passkey, two-factor, device-session, and account-deletion controls on the authenticated Ace ID website.
 
 ## Native sign-in configuration
 
-Register a public native OIDC client with the Ace ID issuer and redirect URI:
+Register a public native OIDC client with the Ace ID issuer and this exact redirect URI:
 
 `app.tab.aid:/oauth2redirect`
 
-Set the repository variable `ACEID_MOBILE_CLIENT_ID` in GitHub Actions to that public client ID. The APK workflow passes it to Flutter using a Dart define. A public native client ID is not a secret; do not embed a client secret in the installed app.
+Set the GitHub Actions repository variable `ACEID_MOBILE_CLIENT_ID` to that public client ID. The Android workflow passes it to Flutter using a Dart define. A public native client ID is not a secret; do not embed a client secret in the installed app.
 
-If this variable is missing, the app shows the specific configuration error and offers existing web login as a fallback.
+If this variable is missing, native sign-in is unavailable and the app offers existing web login as a fallback. Backend account APIs must continue to enforce authorization and ownership server-side.
 
 ## Local build
 
@@ -36,8 +36,22 @@ flutter test
 flutter build apk --release --dart-define=ACEID_MOBILE_CLIENT_ID=YOUR_PUBLIC_CLIENT_ID
 ```
 
-Current CI APKs are installable test artifacts signed with the configured debug signing setup. Configure a private upload keystore and protected GitHub secrets before publishing on Google Play.
+The repository does not currently track `mobile/pubspec.lock`, so dependency resolution is not fully reproducible. Commit the application lockfile and validate a clean CI build before treating artifacts as reproducible release inputs.
 
-## APK workflow
+CI APKs are test artifacts signed with the default debug signing setup. Configure a private upload keystore and protected GitHub secrets before publishing on Google Play. Never commit signing keys or passwords.
 
-The workflow runs only for changes under `mobile/**` or the workflow itself on `master`, plus manual dispatch. Web-only changes do not trigger Android packaging. It builds a universal APK and ABI-specific APKs and uploads them as the `ace-id-android-apks` artifact for 14 days.
+## Android CI workflow
+
+The canonical workflow is [`.github/workflows/android.yml`](https://github.com/aceyash-dev/AceID/blob/main/.github/workflows/android.yml). It runs for pushes and pull requests targeting `main` when `mobile/**` or the workflow file changes, and supports manual dispatch. Web-only changes do not trigger Android packaging.
+
+CI builds **split release APKs only** for `armeabi-v7a` and `arm64-v8a`; it does not produce a universal or x86_64 APK. The workflow uploads them as the `ace-id-android-apks` artifact, retained for 14 days. These temporary workflow artifacts are not versioned GitHub Releases.
+
+## Repository boundaries
+
+- [`aceyash-dev/AceID`](https://github.com/aceyash-dev/AceID): public web frontend assets and Flutter client app.
+- [`aceyash-dev/ace-id`](https://github.com/aceyash-dev/ace-id): Node.js identity provider, backend APIs, migrations, and backend CI.
+- [`aceyash-dev/ace-docs`](https://github.com/aceyash-dev/ace-docs): product and technical documentation.
+
+## License
+
+The AceID repository is MIT-licensed. See the repository's [LICENSE](https://github.com/aceyash-dev/AceID/blob/main/LICENSE).
