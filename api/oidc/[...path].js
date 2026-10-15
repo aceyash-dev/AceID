@@ -176,5 +176,7 @@ function handler(req, res) {
   req.pipe(upstreamRequest);
 }
 
-module.exports = { handler, mapOIDCPath, parseUpstreamOrigin };
-module.exports.default = handler;
+module.exports = handler;
+module.exports.handler = handler;
+module.exports.mapOIDCPath = mapOIDCPath;
+module.exports.parseUpstreamOrigin = parseUpstreamOrigin;
