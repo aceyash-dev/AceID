@@ -134,7 +134,7 @@ class OidcAuthService {
     if (normalized.contains('redirect') || normalized.contains('callback')) return 'The sign-in callback was rejected. Check the mobile client redirect URI: $redirectUrl.';
     if (normalized.contains('client') || normalized.contains('authorize') || normalized.contains('token')) return 'The identity provider rejected the mobile sign-in ($code). Verify the registered mobile client ID and redirect URI.';
     final safeDetails = (details ?? '').replaceAll(RegExp(r'[\r\n]+'), ' ').trim();
-    return safeDetails.isEmpty ? 'Sign-in failed ($code). Verify the mobile OAuth client configuration.' : 'Sign-in failed ($code): ${safeDetails.substring(0, safeDetails.length.clamp(0, 180))}';
+    return safeDetails.isEmpty ? 'Sign-in failed ($code). Verify the mobile OAuth client configuration.' : 'Sign-in failed ($code): ${safeDetails.substring(0, safeDetails.length > 180 ? 180 : safeDetails.length)}';
   }
 
   IdentityProfile _profileFromClaims(Map<String, dynamic> claims, DateTime expiry) => IdentityProfile(
