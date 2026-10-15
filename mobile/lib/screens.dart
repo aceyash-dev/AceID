@@ -262,8 +262,10 @@ class _Brand extends StatelessWidget {
   final bool showStatus;
   @override
   Widget build(BuildContext context) => Row(mainAxisSize: MainAxisSize.min, children: [
-    Container(width: 30, height: 30, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.zero),
-      child: Center(child: Text('A', style: TextStyle(fontFamily: 'InstrumentSerif', color: Theme.of(context).colorScheme.surface, fontSize: 24, height: 1)))),
+    ClipRRect(
+      borderRadius: BorderRadius.zero,
+      child: Image.asset('assets/ace_id_logo.png', width: 30, height: 30, fit: BoxFit.cover),
+    ),
     const SizedBox(width: 9),
     Text('ace id.', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: 'InstrumentSerif', fontSize: 28, fontWeight: FontWeight.w400, letterSpacing: -.5)),
     if (showStatus) ...[
