@@ -82,7 +82,7 @@ function handler(req, res) {
 
   // Preserve issuer-origin checks and cookie scope while the upstream connection
   // itself uses the validated backend host for TLS/SNI.
-  const incomingHost = req.headers?.["x-forwarded-host"] || req.headers?.host;
+  const incomingHost = req.headers?.host;
   headers.host = incomingHost;
   headers["x-forwarded-host"] = incomingHost;
   headers["x-forwarded-proto"] = "https";
