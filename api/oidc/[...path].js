@@ -64,14 +64,16 @@ function mapOIDCPath(requestUrl) {
     return { error: "not_found" };
   }
 
-  if (
-    parsed.pathname !== "/api/oidc" &&
-    !parsed.pathname.startsWith("/api/oidc/")
-  ) {
-    return { error: "not_found" };
+  // Vercel can invoke a rewritten catch-all with either the destination
+  // (/api/oidc/auth) or the stripped endpoint path (/auth). Normalize both
+  // forms; do not reject a valid provider endpoint just because routing has
+  // already removed the internal prefix.
+  let path;
+  if (parsed.pathname === "/api/oidc" || parsed.pathname.startsWith("/api/oidc/")) {
+    path = parsed.pathname.slice("/api/oidc".length) || "/";
+  } else {
+    path = parsed.pathname || "/";
   }
-
-  const path = parsed.pathname.slice("/api/oidc".length) || "/";
   const allowed =
     ALLOWED_EXACT_PATHS.has(path) ||
     ALLOWED_PATH_PREFIXES.some((prefix) => path.startsWith(prefix));

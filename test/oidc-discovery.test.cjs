@@ -54,11 +54,18 @@ test("Vercel sends OIDC endpoints through the backend proxy", () => {
 });
 
 test("OIDC proxy keeps endpoint paths and query strings intact", () => {
-  assert.deepEqual(proxy.mapOIDCPath("/api/oidc/auth?client_id=aid-app"), {
-    pathAndQuery: "/auth?client_id=aid-app",
-  });
-  assert.deepEqual(proxy.mapOIDCPath("/api/oidc/token/revocation"), {
-    pathAndQuery: "/token/revocation",
+  for (const requestPath of ["/api/oidc/auth?client_id=aid-app", "/auth?client_id=aid-app"]) {
+    assert.deepEqual(proxy.mapOIDCPath(requestPath), {
+      pathAndQuery: "/auth?client_id=aid-app",
+    });
+  }
+  for (const requestPath of ["/api/oidc/token/revocation", "/token/revocation"]) {
+    assert.deepEqual(proxy.mapOIDCPath(requestPath), {
+      pathAndQuery: "/token/revocation",
+    });
+  }
+  assert.deepEqual(proxy.mapOIDCPath("/interaction/abc123?prompt=login"), {
+    pathAndQuery: "/interaction/abc123?prompt=login",
   });
 });
 
