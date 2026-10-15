@@ -39,7 +39,7 @@ jobs:
         run: dart run flutter_launcher_icons
       - name: Format Dart sources
         working-directory: mobile
-        run: dart format lib test
+        run: dart format --output=none --set-exit-if-changed lib test
       - name: Analyze Dart
         working-directory: mobile
         run: flutter analyze --no-fatal-infos
@@ -49,10 +49,15 @@ jobs:
       - name: Validate public OIDC client configuration
         env:
           ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
+          ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
         shell: bash
         run: |
           if [[ -z "${ACEID_MOBILE_CLIENT_ID//[[:space:]]/}" ]]; then
             echo "::error title=Missing mobile OIDC client::Set ACEID_MOBILE_CLIENT_ID to the registered public OIDC client ID. Do not configure a client secret in the app."
+            exit 1
+          fi
+          if [[ "$ACEID_MOBILE_REDIRECT_URI" != "app.tab.aid:/oauth2redirect" ]]; then
+            echo "::error title=Invalid mobile redirect URI::Set ACEID_MOBILE_REDIRECT_URI to app.tab.aid:/oauth2redirect."
             exit 1
           fi
       - name: Generate Android Gradle wrapper
@@ -63,18 +68,21 @@ jobs:
           cp /tmp/ace-id-mobile-wrapper/android/gradlew.bat mobile/android/gradlew.bat
           mkdir -p mobile/android/gradle/wrapper
           cp /tmp/ace-id-mobile-wrapper/android/gradle/wrapper/gradle-wrapper.jar mobile/android/gradle/wrapper/gradle-wrapper.jar
+          cp /tmp/ace-id-mobile-wrapper/android/gradle/wrapper/gradle-wrapper.properties mobile/android/gradle/wrapper/gradle-wrapper.properties
           chmod +x mobile/android/gradlew
-      - name: Build ABI-specific APKs
+      - name: Build armeabi-v7a testing APK
         working-directory: mobile
         env:
           ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
-        run: flutter build apk --release --split-per-abi --target-platform android-arm,android-arm64 --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID"
-      - name: Upload APK artifacts
+          ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
+        run: >-
+          flutter build apk --release --target-platform android-arm
+          --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID"
+          --dart-define=ACEID_MOBILE_REDIRECT_URI="$ACEID_MOBILE_REDIRECT_URI"
+      - name: Upload armeabi-v7a test APK
         uses: actions/upload-artifact@v4
         with:
-          name: ace-id-android-apks
-          path: |
-            mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
-            mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          name: ace-id-armeabi-v7a-test-apk
+          path: mobile/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14
