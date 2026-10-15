@@ -75,10 +75,17 @@ jobs:
         env:
           ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
           ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
-        run: >-
-          flutter build apk --release --target-platform android-arm
-          --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID"
-          --dart-define=ACEID_MOBILE_REDIRECT_URI="$ACEID_MOBILE_REDIRECT_URI"
+          ACEID_API_BASE_URL: ${{ vars.ACEID_API_BASE_URL }}
+        shell: bash
+        run: |
+          api_define=()
+          if [[ -n "${ACEID_API_BASE_URL//[[:space:]]/}" ]]; then
+            api_define+=("--dart-define=ACEID_API_BASE_URL=$ACEID_API_BASE_URL")
+          fi
+          flutter build apk --release --target-platform android-arm \
+            --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID" \
+            --dart-define=ACEID_MOBILE_REDIRECT_URI="$ACEID_MOBILE_REDIRECT_URI" \
+            "${api_define[@]}"
       - name: Upload armeabi-v7a test APK
         uses: actions/upload-artifact@v4
         with:
