@@ -49,10 +49,19 @@ jobs:
       - name: Validate public OIDC client configuration
         env:
           ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
+          ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
         shell: bash
         run: |
           if [[ -z "${ACEID_MOBILE_CLIENT_ID//[[:space:]]/}" ]]; then
-            echo "::error title=Missing mobile OIDC client::Set ACEID_MOBILE_CLIENT_ID to the registered public OIDC client ID. Do not configure a client secret in the app."
+            echo "::error title=Missing mobile OIDC client::Set ACEID_MOBILE_CLIENT_ID to the registered native public OIDC client ID. Do not configure a client secret in the app."
+            exit 1
+          fi
+          if [[ -z "${ACEID_MOBILE_REDIRECT_URI//[[:space:]]/}" ]]; then
+            echo "::error title=Missing mobile OIDC redirect::Set ACEID_MOBILE_REDIRECT_URI to an exact redirect URI registered on that native client."
+            exit 1
+          fi
+          if [[ "$ACEID_MOBILE_REDIRECT_URI" != "app.tab.aid:/oauth2redirect" ]]; then
+            echo "::error title=Unsupported Android redirect::The Android redirect receiver is currently configured for app.tab.aid:/oauth2redirect."
             exit 1
           fi
       - name: Generate Android Gradle wrapper
@@ -68,7 +77,8 @@ jobs:
         working-directory: mobile
         env:
           ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
-        run: flutter build apk --release --split-per-abi --target-platform android-arm,android-arm64 --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID"
+          ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
+        run: flutter build apk --release --split-per-abi --target-platform android-arm,android-arm64 --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID" --dart-define=ACEID_MOBILE_REDIRECT_URI="$ACEID_MOBILE_REDIRECT_URI"
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
