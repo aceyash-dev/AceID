@@ -39,7 +39,7 @@ jobs:
         run: dart run flutter_launcher_icons
       - name: Format Dart sources
         working-directory: mobile
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: dart format lib test
       - name: Analyze Dart
         working-directory: mobile
         run: flutter analyze --no-fatal-infos
@@ -75,17 +75,10 @@ jobs:
         env:
           ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
           ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
-          ACEID_API_BASE_URL: ${{ vars.ACEID_API_BASE_URL }}
-        shell: bash
-        run: |
-          api_define=()
-          if [[ -n "${ACEID_API_BASE_URL//[[:space:]]/}" ]]; then
-            api_define+=("--dart-define=ACEID_API_BASE_URL=$ACEID_API_BASE_URL")
-          fi
-          flutter build apk --release --target-platform android-arm \
-            --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID" \
-            --dart-define=ACEID_MOBILE_REDIRECT_URI="$ACEID_MOBILE_REDIRECT_URI" \
-            "${api_define[@]}"
+        run: >-
+          flutter build apk --release --target-platform android-arm
+          --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID"
+          --dart-define=ACEID_MOBILE_REDIRECT_URI="$ACEID_MOBILE_REDIRECT_URI"
       - name: Upload armeabi-v7a test APK
         uses: actions/upload-artifact@v4
         with:
