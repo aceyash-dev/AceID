@@ -28,6 +28,9 @@ jobs:
         with:
           channel: stable
           cache: true
+      - name: Fetch licensed font assets
+        working-directory: mobile
+        run: bash tool/fetch_fonts.sh
       - name: Install dependencies
         working-directory: mobile
         run: flutter pub get

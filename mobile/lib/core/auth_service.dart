@@ -133,6 +133,15 @@ class OidcAuthService {
     await _storage.delete(key: _profileKey);
     await _storage.delete(key: _expiryKey);
     await _storage.delete(key: _idTokenKey);
+    // Private account snapshots must never survive sign-out or an invalid session.
+    try {
+      final stored = await _storage.readAll();
+      for (final key in stored.keys.where((key) => key.startsWith('aceid.cache.'))) {
+        await _storage.delete(key: key);
+      }
+    } catch (_) {
+      // A cache cleanup issue must not prevent the user from signing out locally.
+    }
   }
 
   Future<void> signOut() async {

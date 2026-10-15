@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'core/ace_theme.dart';
 import 'core/api_service.dart';
@@ -58,11 +58,11 @@ class _SignInScreenState extends State<SignInScreen> {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('YOUR ACCOUNT', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 1.5, fontWeight: FontWeight.w800)),
                   const SizedBox(height: 18),
-                  const _Feature(icon: Icons.person_outline, label: 'Profile and account details'),
+                  const _Feature(icon: HugeIcon(icon: HugeIcons.strokeRoundedUser, size: 20), label: 'Profile and account details'),
                   const SizedBox(height: 16),
-                  const _Feature(icon: Icons.shield_outlined, label: 'Security and signed-in devices'),
+                  const _Feature(icon: HugeIcon(icon: HugeIcons.strokeRoundedShieldCheck, size: 20), label: 'Security and signed-in devices'),
                   const SizedBox(height: 16),
-                  const _Feature(icon: Icons.workspace_premium_outlined, label: 'Membership and subscriptions'),
+                  const _Feature(icon: HugeIcon(icon: HugeIcons.strokeRoundedAward01, size: 20), label: 'Membership and subscriptions'),
                 ]),
               ),
               const SizedBox(height: 22),
@@ -70,7 +70,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 onPressed: busy ? null : continueSignIn,
                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   if (busy) const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                  else const Icon(Icons.arrow_outward, size: 18),
+                  else const HugeIcon(icon: HugeIcons.strokeRoundedArrowExpandDiagonal01, size: 18),
                   const SizedBox(width: 10),
                   Text(busy ? 'Connecting securely' : 'Continue with Ace ID'),
                 ]),
@@ -82,7 +82,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: Text(error!, style: theme.textTheme.bodySmall?.copyWith(color: AceTheme.danger))),
               ],
               const SizedBox(height: 12),
-              OutlinedButton.icon(onPressed: busy ? null : openWeb, icon: const Icon(Icons.open_in_browser, size: 18), label: const Text('Continue on the web')),
+              OutlinedButton.icon(onPressed: busy ? null : openWeb, icon: const HugeIcon(icon: HugeIcons.strokeRoundedBrowser, size: 18), label: const Text('Continue on the web')),
               const SizedBox(height: 36),
               Divider(color: theme.dividerTheme.color),
               const SizedBox(height: 12),
@@ -98,11 +98,11 @@ class _SignInScreenState extends State<SignInScreen> {
 
 class _Feature extends StatelessWidget {
   const _Feature({required this.icon, required this.label});
-  final IconData icon;
+  final Widget icon;
   final String label;
   @override
   Widget build(BuildContext context) => Row(children: [
-    Icon(icon, size: 20, color: AceTheme.orange),
+    icon,
     const SizedBox(width: 12),
     Expanded(child: Text(label, style: Theme.of(context).textTheme.bodyMedium)),
   ]);
@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(4))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.zero)),
       builder: (context) => SubscriptionSheet(api: api),
     );
   }
@@ -145,19 +145,113 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
     return Scaffold(
       appBar: AppBar(title: const _Brand(), actions: [
-        IconButton(tooltip: 'Sign out', onPressed: widget.onSignOut, icon: const Icon(Icons.logout)),
+        IconButton(tooltip: 'Sign out', onPressed: widget.onSignOut, icon: const HugeIcon(icon: HugeIcons.strokeRoundedLogout01)),
         const SizedBox(width: 8),
       ]),
-      body: SafeArea(child: IndexedStack(index: tab, children: pages)),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: tab,
-        onDestinationSelected: (value) => setState(() => tab = value),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.shield_outlined), selectedIcon: Icon(Icons.shield), label: 'Security'),
-          NavigationDestination(icon: Icon(Icons.link_outlined), selectedIcon: Icon(Icons.link), label: 'Connected'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Account'),
-        ],
+      body: SafeArea(
+        child: Stack(children: [
+          for (var i = 0; i < pages.length; i++)
+            Positioned.fill(
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 190),
+                curve: Curves.easeOutCubic,
+                opacity: tab == i ? 1 : 0,
+                child: IgnorePointer(
+                  ignoring: tab != i,
+                  child: ExcludeSemantics(
+                    excluding: tab != i,
+                    child: TickerMode(enabled: tab == i, child: pages[i]),
+                  ),
+                ),
+              ),
+            ),
+        ]),
+      ),
+      bottomNavigationBar: _FloatingNavigationBar(
+        index: tab,
+        onSelect: (value) => setState(() => tab = value),
+      ),
+    );
+  }
+}
+
+class _FloatingNavigationBar extends StatelessWidget {
+  const _FloatingNavigationBar({required this.index, required this.onSelect});
+  final int index;
+  final ValueChanged<int> onSelect;
+
+  static const _items = <(String, List<List>)>[
+    ('Home', HugeIcons.strokeRoundedHome01),
+    ('Security', HugeIcons.strokeRoundedShieldCheck),
+    ('Connected', HugeIcons.strokeRoundedLink01),
+    ('Account', HugeIcons.strokeRoundedUser),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return SafeArea(
+      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      child: Container(
+        height: 68,
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: theme.cardTheme.color ?? colors.surface,
+          border: Border.all(color: theme.dividerTheme.color ?? AceTheme.line),
+          boxShadow: [BoxShadow(color: colors.onSurface.withValues(alpha: .08), blurRadius: 22, offset: const Offset(0, 7))],
+        ),
+        child: Row(children: [
+          for (var i = 0; i < _items.length; i++)
+            Expanded(
+              child: _FloatingNavigationItem(
+                label: _items[i].$1,
+                icon: _items[i].$2,
+                selected: index == i,
+                onTap: () => onSelect(i),
+              ),
+            ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _FloatingNavigationItem extends StatelessWidget {
+  const _FloatingNavigationItem({required this.label, required this.icon, required this.selected, required this.onTap});
+  final String label;
+  final List<List> icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+          decoration: BoxDecoration(
+            color: selected ? colors.onSurface : Colors.transparent,
+            border: Border.all(color: selected ? colors.onSurface : Colors.transparent),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              HugeIcon(icon: icon, size: 21, color: selected ? colors.surface : colors.onSurfaceVariant),
+              if (selected) ...[
+                const SizedBox(width: 6),
+                Flexible(child: AnimatedSize(duration: const Duration(milliseconds: 180), curve: Curves.easeOutCubic, child: Text(label, maxLines: 1, overflow: TextOverflow.clip, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.surface, fontWeight: FontWeight.w800)))),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -168,13 +262,13 @@ class _Brand extends StatelessWidget {
   final bool showStatus;
   @override
   Widget build(BuildContext context) => Row(mainAxisSize: MainAxisSize.min, children: [
-    Container(width: 30, height: 30, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.circular(2)),
-      child: Center(child: Text('A', style: GoogleFonts.instrumentSerif(color: Theme.of(context).colorScheme.surface, fontSize: 24, height: 1)))),
+    Container(width: 30, height: 30, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface, borderRadius: BorderRadius.zero),
+      child: Center(child: Text('A', style: TextStyle(fontFamily: 'InstrumentSerif', color: Theme.of(context).colorScheme.surface, fontSize: 24, height: 1)))),
     const SizedBox(width: 9),
-    Text('ace id.', style: Theme.of(context).textTheme.titleLarge),
+    Text('ace id.', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontFamily: 'InstrumentSerif', fontSize: 28, fontWeight: FontWeight.w400, letterSpacing: -.5)),
     if (showStatus) ...[
       const Spacer(),
-      Container(width: 7, height: 7, decoration: const BoxDecoration(color: AceTheme.orange, shape: BoxShape.circle)),
+      Container(width: 6, height: 6, decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface)),
       const SizedBox(width: 7),
       Text('SECURE ACCOUNT', style: Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: .8, fontWeight: FontWeight.w800)),
     ],
@@ -238,14 +332,14 @@ class _OverviewScreenState extends State<OverviewScreen> {
           decoration: BoxDecoration(color: theme.cardTheme.color, border: Border.all(color: theme.dividerTheme.color ?? AceTheme.line)),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              CircleAvatar(radius: 26, backgroundColor: colors.onSurface, child: Text(safeName[0].toUpperCase(), style: theme.textTheme.headlineMedium?.copyWith(color: colors.surface))),
+              Container(width: 52, height: 52, alignment: Alignment.center, decoration: BoxDecoration(color: colors.onSurface, border: Border.all(color: colors.onSurface)), child: Text(safeName[0].toUpperCase(), style: theme.textTheme.headlineMedium?.copyWith(color: colors.surface))),
               const SizedBox(width: 14),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(safeName, style: theme.textTheme.titleLarge),
                 Text((account?['email'] ?? widget.profile.email).toString(), style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant)),
-                if (account?['email_verified'] == false) Text('Email not verified', style: theme.textTheme.labelSmall?.copyWith(color: AceTheme.orange)),
+                if (account?['email_verified'] == false) Text('Email not verified', style: theme.textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
               ])),
-              const Icon(Icons.verified_user_outlined, color: AceTheme.orange),
+              HugeIcon(icon: HugeIcons.strokeRoundedShieldCheck, color: Theme.of(context).colorScheme.onSurface, size: 22),
             ]),
             const SizedBox(height: 18),
             Divider(color: theme.dividerTheme.color),
@@ -254,13 +348,13 @@ class _OverviewScreenState extends State<OverviewScreen> {
             const SizedBox(height: 12),
             _InfoRow(label: 'MEMBERSHIP', value: loading ? 'Loading…' : plan),
             const SizedBox(height: 18),
-            FilledButton.icon(onPressed: widget.onAccount, icon: const Icon(Icons.person_outline), label: const Text('Manage account')),
+            FilledButton.icon(onPressed: widget.onAccount, icon: const HugeIcon(icon: HugeIcons.strokeRoundedUser), label: const Text('Manage account')),
           ]),
         ),
         const SizedBox(height: 18),
-        _ActionTile(icon: Icons.workspace_premium_outlined, title: 'Membership & subscriptions', subtitle: 'Plans, benefits, and billing', onTap: widget.onSubscriptions, trailing: Text(plan, style: theme.textTheme.labelLarge?.copyWith(color: AceTheme.orange))),
-        _ActionTile(icon: Icons.shield_outlined, title: 'Security & devices', subtitle: 'Review sessions and account protection', onTap: widget.onSecurity),
-        _ActionTile(icon: Icons.link_outlined, title: 'Connected apps', subtitle: 'Review and revoke app access', onTap: widget.onConnected),
+        _ActionTile(icon: HugeIcons.strokeRoundedAward01, title: 'Membership & subscriptions', subtitle: 'Plans, benefits, and billing', onTap: widget.onSubscriptions, trailing: Text(plan, style: theme.textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface))),
+        _ActionTile(icon: HugeIcons.strokeRoundedShieldCheck, title: 'Security & devices', subtitle: 'Review sessions and account protection', onTap: widget.onSecurity),
+        _ActionTile(icon: HugeIcons.strokeRoundedLink01, title: 'Connected apps', subtitle: 'Review and revoke app access', onTap: widget.onConnected),
         const SizedBox(height: 12),
         Text('Pull down to refresh your account details.', style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant)),
       ]),
@@ -307,7 +401,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
       if (loading && data == null) const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
       if (!loading && devices.isEmpty && error == null) const _EmptyPanel(message: 'No session details were returned.'),
       for (final item in devices) _DataTile(
-        icon: Icons.devices_outlined,
+        icon: HugeIcons.strokeRoundedComputerUser,
         title: (item['device_name'] ?? item['browser'] ?? item['device_type'] ?? 'Signed-in device').toString(),
         subtitle: '${item['os'] ?? 'Device'} · ${item['location'] ?? 'Location unavailable'}',
         trailing: (item['last_seen_at'] ?? item['created_at'] ?? '').toString(),
@@ -316,13 +410,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
       _SectionHeading(title: 'Recent activity', count: logs.length),
       if (logs.isEmpty && !loading && error == null) const _EmptyPanel(message: 'No recent activity was returned.'),
       for (final item in logs.take(12)) _DataTile(
-        icon: Icons.history,
+        icon: HugeIcons.strokeRoundedHistory,
         title: (item['name'] ?? item['event_type'] ?? 'Account activity').toString(),
         subtitle: '${item['category'] ?? 'account'} · ${item['browser'] ?? 'Ace ID'}',
         trailing: (item['created_at'] ?? '').toString(),
       ),
       const SizedBox(height: 20),
-      OutlinedButton.icon(onPressed: widget.onOpenWeb, icon: const Icon(Icons.open_in_browser), label: const Text('More security settings')),
+      OutlinedButton.icon(onPressed: widget.onOpenWeb, icon: const HugeIcon(icon: HugeIcons.strokeRoundedBrowser), label: const Text('More security settings')),
     ]));
   }
 }
@@ -384,7 +478,7 @@ class _ConnectedAppsScreenState extends State<ConnectedAppsScreen> {
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
               Container(width: 42, height: 42, decoration: BoxDecoration(color: theme.scaffoldBackgroundColor, border: Border.all(color: theme.dividerTheme.color ?? AceTheme.line)),
-                child: const Icon(Icons.apps_outlined, color: AceTheme.orange)),
+                child: HugeIcon(icon: HugeIcons.strokeRoundedGridView, color: Theme.of(context).colorScheme.onSurface, size: 22)),
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text((raw['clientName'] ?? 'Connected app').toString(), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
@@ -394,7 +488,7 @@ class _ConnectedAppsScreenState extends State<ConnectedAppsScreen> {
             const SizedBox(height: 12),
             Text('Access: ${((raw['scopes'] as List?) ?? []).join(', ')}', style: theme.textTheme.bodySmall),
             const SizedBox(height: 12),
-            Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: () => revoke(Map<String, dynamic>.from(raw as Map)), icon: const Icon(Icons.link_off, size: 18), label: const Text('Disconnect'))),
+            Align(alignment: Alignment.centerRight, child: TextButton.icon(onPressed: () => revoke(Map<String, dynamic>.from(raw as Map)), icon: const HugeIcon(icon: HugeIcons.strokeRoundedLinkOff, size: 18), label: const Text('Disconnect'))),
           ]),
         ),
         const SizedBox(height: 10),
@@ -480,25 +574,25 @@ class _AccountScreenState extends State<AccountScreen> {
       const SizedBox(height: 22),
       Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: theme.cardTheme.color, border: Border.all(color: theme.dividerTheme.color ?? AceTheme.line)), child: Column(children: [
         Row(children: [
-          CircleAvatar(radius: 30, backgroundColor: theme.colorScheme.onSurface, child: Text(displayName.isEmpty ? 'A' : displayName[0].toUpperCase(), style: theme.textTheme.headlineLarge?.copyWith(color: theme.colorScheme.surface))),
+          Container(width: 60, height: 60, alignment: Alignment.center, decoration: BoxDecoration(color: theme.colorScheme.onSurface, border: Border.all(color: theme.colorScheme.onSurface)), child: Text(displayName.isEmpty ? 'A' : displayName[0].toUpperCase(), style: theme.textTheme.headlineLarge?.copyWith(color: theme.colorScheme.surface))),
           const SizedBox(width: 14),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(displayName, style: theme.textTheme.titleLarge),
             Text(email, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-            Text('@${account?['username'] ?? '…'}', style: theme.textTheme.bodySmall?.copyWith(color: AceTheme.orange)),
+            Text('@${account?['username'] ?? '…'}', style: theme.textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
           ])),
         ]),
         const SizedBox(height: 18),
-        OutlinedButton.icon(onPressed: loading ? null : editProfile, icon: const Icon(Icons.edit_outlined), label: const Text('Edit profile')),
+        OutlinedButton.icon(onPressed: loading ? null : editProfile, icon: const HugeIcon(icon: HugeIcons.strokeRoundedFileEdit), label: const Text('Edit profile')),
       ])),
       const SizedBox(height: 18),
-      _ActionTile(icon: Icons.workspace_premium_outlined, title: 'Membership & subscriptions', subtitle: 'Manage your plan and billing', onTap: widget.onSubscriptions),
-      _ActionTile(icon: Icons.lock_outline, title: 'Password & sign-in', subtitle: 'Change password and recovery options', onTap: () => widget.onOpenWeb('/account/security')),
-      _ActionTile(icon: Icons.phonelink_lock_outlined, title: 'Sessions & trusted devices', subtitle: 'Review and sign out devices', onTap: () => widget.onOpenWeb('/account/devices')),
-      _ActionTile(icon: Icons.verified_user_outlined, title: 'Passkeys & two-factor authentication', subtitle: 'Manage stronger sign-in methods', onTap: () => widget.onOpenWeb('/account/security')),
-      _ActionTile(icon: Icons.delete_outline, title: 'Account deletion', subtitle: 'Permanently remove your Ace ID', onTap: () => widget.onOpenWeb('/account/danger'), danger: true),
+      _ActionTile(icon: HugeIcons.strokeRoundedAward01, title: 'Membership & subscriptions', subtitle: 'Manage your plan and billing', onTap: widget.onSubscriptions),
+      _ActionTile(icon: HugeIcons.strokeRoundedLock, title: 'Password & sign-in', subtitle: 'Change password and recovery options', onTap: () => widget.onOpenWeb('/account/security')),
+      _ActionTile(icon: HugeIcons.strokeRoundedLockComputer, title: 'Sessions & trusted devices', subtitle: 'Review and sign out devices', onTap: () => widget.onOpenWeb('/account/devices')),
+      _ActionTile(icon: HugeIcons.strokeRoundedShieldCheck, title: 'Passkeys & two-factor authentication', subtitle: 'Manage stronger sign-in methods', onTap: () => widget.onOpenWeb('/account/security')),
+      _ActionTile(icon: HugeIcons.strokeRoundedDelete01, title: 'Account deletion', subtitle: 'Permanently remove your Ace ID', onTap: () => widget.onOpenWeb('/account/danger'), danger: true),
       const SizedBox(height: 20),
-      OutlinedButton.icon(onPressed: widget.onSignOut, icon: const Icon(Icons.logout), label: const Text('Sign out')),
+      OutlinedButton.icon(onPressed: widget.onSignOut, icon: const HugeIcon(icon: HugeIcons.strokeRoundedLogout01), label: const Text('Sign out')),
       const SizedBox(height: 12),
       Text('Sensitive security changes open in the secure Ace ID account site and may require you to sign in again.', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5)),
     ]));
@@ -580,7 +674,7 @@ class _SubscriptionSheetState extends State<SubscriptionSheet> {
               const SizedBox(height: 4),
               Text('Plans and benefits for your Ace ID.', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
             ])),
-            IconButton(onPressed: loading ? null : refresh, icon: const Icon(Icons.refresh), tooltip: 'Refresh membership'),
+            IconButton(onPressed: loading ? null : refresh, icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh), tooltip: 'Refresh membership'),
           ]),
           const SizedBox(height: 16),
           if (loading) const Expanded(child: Center(child: CircularProgressIndicator(strokeWidth: 2)))
@@ -660,7 +754,7 @@ class _PlanCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
         border: Border.all(
-          color: active ? AceTheme.orange : (theme.dividerTheme.color ?? AceTheme.line),
+          color: active ? Theme.of(context).colorScheme.onSurface : (theme.dividerTheme.color ?? AceTheme.line),
           width: active ? 1.5 : 1,
         ),
       ),
@@ -746,7 +840,7 @@ class _InfoRow extends StatelessWidget {
 
 class _ActionTile extends StatelessWidget {
   const _ActionTile({required this.icon, required this.title, required this.subtitle, required this.onTap, this.trailing, this.danger = false});
-  final IconData icon;
+  final List<List> icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
@@ -757,10 +851,10 @@ class _ActionTile extends StatelessWidget {
     final theme = Theme.of(context);
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 4),
-      leading: Icon(icon, color: danger ? AceTheme.danger : AceTheme.orange),
+      leading: HugeIcon(icon: icon, size: 22, color: danger ? AceTheme.danger : theme.colorScheme.onSurface),
       title: Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800, color: danger ? AceTheme.danger : null)),
       subtitle: Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-      trailing: trailing ?? const Icon(Icons.arrow_outward, size: 18),
+      trailing: trailing ?? const HugeIcon(icon: HugeIcons.strokeRoundedArrowExpandDiagonal01, size: 18),
       onTap: onTap,
     );
   }
@@ -768,7 +862,7 @@ class _ActionTile extends StatelessWidget {
 
 class _DataTile extends StatelessWidget {
   const _DataTile({required this.icon, required this.title, required this.subtitle, required this.trailing});
-  final IconData icon;
+  final List<List> icon;
   final String title;
   final String subtitle;
   final String trailing;
@@ -777,7 +871,7 @@ class _DataTile extends StatelessWidget {
     final theme = Theme.of(context);
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 4),
-      leading: Icon(icon, color: AceTheme.orange),
+      leading: HugeIcon(icon: icon, size: 22, color: theme.colorScheme.onSurfaceVariant),
       title: Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
       subtitle: Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
       trailing: SizedBox(width: 84, child: Text(trailing, textAlign: TextAlign.end, maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant))),
@@ -794,10 +888,10 @@ class _ErrorPanel extends StatelessWidget {
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(border: Border.all(color: AceTheme.danger.withValues(alpha: .45))),
     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const Icon(Icons.error_outline, color: AceTheme.danger),
+      const HugeIcon(icon: HugeIcons.strokeRoundedShieldAlert, color: AceTheme.danger),
       const SizedBox(width: 10),
       Expanded(child: Text(message, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AceTheme.danger))),
-      IconButton(onPressed: onRetry, icon: const Icon(Icons.refresh, size: 18), tooltip: 'Retry'),
+      IconButton(onPressed: onRetry, icon: const HugeIcon(icon: HugeIcons.strokeRoundedRefresh, size: 18), tooltip: 'Retry'),
     ]),
   );
 }
@@ -820,8 +914,8 @@ class _StatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-    decoration: BoxDecoration(color: const Color(0xFFF1DFD5), borderRadius: BorderRadius.circular(2)),
-    child: Text(text, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AceTheme.orange, fontWeight: FontWeight.w800, letterSpacing: .4)),
+    decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest),
+    child: Text(text, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w800, letterSpacing: .4)),
   );
 }
 
