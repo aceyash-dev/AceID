@@ -4,8 +4,7 @@
 
 This repository contains the public web client assets and the Flutter Android account app.
 
-- **Identity provider and backend:** [aceyash-dev/ace-id](https://github.com/aceyash-dev/ace-id)
-- **Product and technical documentation:** [ACE-DOCS](https://github.com/aceyash-dev/ace-docs), published at [docs.ace-base.cc](https://docs.ace-base.cc)
+- **Product and technical documentation:** [docs.ace-base.cc](https://docs.ace-base.cc)
 - **License:** MIT
 
-For setup, architecture, API details, and operational guidance, use the documentation rather than expanding this overview into a second manual.
+The identity provider and backend are maintained separately. For setup, architecture, API details, and operational guidance, use the documentation rather than expanding this overview into a second manual.
