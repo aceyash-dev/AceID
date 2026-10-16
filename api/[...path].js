@@ -36,6 +36,22 @@ function parseUpstreamOrigin(value) {
   }
 }
 
+// Only the account, subscription and auth endpoints the frontend calls are
+// forwarded; everything else under /api is refused before reaching the backend.
+const ALLOWED_API_PREFIXES = [
+  "/api/account",
+  "/api/subscription",
+  "/api/email-verification",
+  "/api/username-availability",
+  "/api/login",
+];
+
+function isAllowedApiPath(pathname) {
+  return ALLOWED_API_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix + "/")
+  );
+}
+
 function sendError(res, statusCode, code, description) {
   res.statusCode = statusCode;
   res.setHeader("content-type", "application/json; charset=utf-8");
@@ -72,6 +88,10 @@ function handler(req, res) {
     return sendError(res, 404, "not_found", "The API route was not found.");
   }
 
+  if (!isAllowedApiPath(incoming.pathname)) {
+    return sendError(res, 404, "not_found", "The API route was not found.");
+  }
+
   const target = new URL(incoming.pathname + incoming.search, parsedOrigin.origin);
   const headers = {};
   for (const [name, value] of Object.entries(req.headers || {})) {
@@ -80,11 +100,12 @@ function handler(req, res) {
     headers[name] = value;
   }
 
-  // Preserve issuer-origin checks and cookie scope while the upstream connection
-  // itself uses the validated backend host for TLS/SNI.
-  const incomingHost = req.headers?.host;
-  headers.host = incomingHost;
-  headers["x-forwarded-host"] = incomingHost;
+  // The Deplexo edge routes by its own hostname and rejects a foreign Host with
+  // 403, so Host must be the upstream host. The public host travels in
+  // X-Forwarded-Host so issuer-origin checks and cookie scope still work.
+  const publicHost = String(req.headers?.host || "identity.ace-base.cc");
+  headers.host = target.host;
+  headers["x-forwarded-host"] = publicHost;
   headers["x-forwarded-proto"] = "https";
   headers["cache-control"] = req.headers?.["cache-control"] || "no-store";
 
