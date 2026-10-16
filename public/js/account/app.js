@@ -1,3 +1,28 @@
+// Error text from API responses or thrown values. Objects are never shown as
+// "[object Object]": prefer message, then error_description, then a string error.
+function messageOf(value, fallback) {
+  if (typeof value === "string" && value.trim()) return value;
+  if (value instanceof Error && value.message) return value.message;
+  if (value && typeof value === "object") {
+    const text = value.message || value.error_description || (typeof value.error === "string" ? value.error : "");
+    if (typeof text === "string" && text.trim()) return text;
+  }
+  return fallback;
+}
+
+// Parse a JSON response without throwing on HTML or plain-text error pages.
+async function readJson(response) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch {
+    return {
+      error: "unexpected_response",
+      error_description: "Ace ID returned an unexpected response (" + response.status + "). Try again in a moment."
+    };
+  }
+}
+
 
     const loading = document.getElementById("loading");
     const content = document.getElementById("content");
@@ -318,8 +343,8 @@
           credentials: "same-origin",
           headers: { "Accept": "application/json" }
         });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.error || "Unable to save onboarding state.");
+        const data = await readJson(response).catch(() => ({}));
+        if (!response.ok) throw new Error(messageOf(data.error, "Unable to save onboarding state."));
         if (account) account.onboarding_required = false;
         closeOnboarding();
       } catch (error) {
@@ -328,7 +353,7 @@
         onboardingSkip.disabled = false;
         onboardingBack.disabled = onboardingIndex === 0;
         onboardingNext.textContent = "Done";
-        showSnackbar(error.message || "Unable to save onboarding state.");
+        showSnackbar(messageOf(error, "Unable to save onboarding state."));
       }
     }
 
@@ -410,7 +435,7 @@
               })
             });
 
-            const data = await response.json().catch(() => ({}));
+            const data = await readJson(response).catch(() => ({}));
 
             if (!response.ok) {
               if (response.status === 401 && data.error === "reauthentication_required") {
@@ -422,7 +447,7 @@
                 throw new Error("This Ace ID needs a fresh sign-in before one-tap switching is available.");
               }
 
-              throw new Error(data.error || "Unable to switch identity.");
+              throw new Error(messageOf(data.error, "Unable to switch identity."));
             }
 
             location.replace(data.redirect || "/account");
@@ -431,7 +456,7 @@
             button.disabled = false;
             button.removeAttribute("aria-busy");
             switchingAccountBusy = false;
-            showSnackbar(error.message || "Unable to switch identity.");
+            showSnackbar(messageOf(error, "Unable to switch identity."));
             haptic("error");
           }
         });
@@ -454,15 +479,15 @@
         headers: { Accept: 'application/json' }
       })
         .then(async response => {
-          const data = await response.json().catch(() => ({}));
-          if (!response.ok) throw new Error(data.error || 'Unable to load signed-in accounts.');
+          const data = await readJson(response).catch(() => ({}));
+          if (!response.ok) throw new Error(messageOf(data.error, 'Unable to load signed-in accounts.'));
           renderAccountChoices(data.accounts || []);
           return data.accounts || [];
         })
         .catch(error => {
           authenticatedAccountsPromise = null;
           if (!silent) {
-            accountChoices.textContent = error.message || 'Unable to load signed-in accounts.';
+            accountChoices.textContent = messageOf(error, 'Unable to load signed-in accounts.');
             haptic('error');
           }
           throw error;
@@ -763,14 +788,14 @@
           headers: { "Content-Type": "application/json", "Accept": "application/json" },
           body: JSON.stringify(body)
         });
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
         if (!response.ok) {
           throw new Error(
             data.error === "incorrect_password"
               ? "Incorrect password."
               : data.error === "reauthentication_required"
                 ? "Re-authenticate before changing device access."
-                : data.error || "Unable to update this device."
+                : messageOf(data.error, "Unable to update this device.")
           );
         }
 
@@ -785,7 +810,7 @@
         haptic("success");
         await loadDevices();
       } catch (error) {
-        deviceActionStatus.textContent = error.message || "Unable to update this device.";
+        deviceActionStatus.textContent = messageOf(error, "Unable to update this device.");
       } finally {
         deviceActionBusy = false;
         submitDeviceAction.disabled = false;
@@ -814,19 +839,19 @@
           cache: "no-store",
           headers: { "Accept": "application/json" }
         });
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
         if (!response.ok) {
           throw new Error(
             data.error === "not_authenticated"
               ? "Your session has expired. Sign in again."
-              : data.error || "Unable to load devices."
+              : messageOf(data.error, "Unable to load devices.")
           );
         }
         renderDevices(data.devices || []);
         devicesStatus.textContent =
           `${data.devices?.length || 0} active session${data.devices?.length === 1 ? "" : "s"}.`;
       } catch (error) {
-        devicesStatus.textContent = error.message || "Unable to load devices.";
+        devicesStatus.textContent = messageOf(error, "Unable to load devices.");
       } finally {
         devicesBusy = false;
       }
@@ -912,7 +937,7 @@
           cache: "no-store",
           headers: { "Accept": "application/json" }
         });
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
         const plan = String(data?.plan || "base").toLowerCase();
         const cooldownDays = Math.max(0, Number(data?.usernameChangeCooldownDays) || 0);
         const lastChangedAt = account?.username_changed_at ? new Date(account.username_changed_at) : null;
@@ -1069,7 +1094,7 @@
           signal: controller.signal,
           headers: { Accept: "application/json" }
         });
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
           if (response.status === 401 || response.status === 403 || data.error === "not_authenticated") {
@@ -1077,7 +1102,7 @@
             throw new Error("Your session has expired. Sign in again to manage authenticator settings.");
           }
 
-          throw new Error(data.error || "Unable to load authenticator settings right now.");
+          throw new Error(messageOf(data.error, "Unable to load authenticator settings right now."));
         }
 
         if (requestId !== mfaStatusRequestId) return;
@@ -1108,7 +1133,7 @@
 
         mfaStatusTitle.textContent = "Authenticator unavailable";
         mfaStatusText.textContent =
-          error.message || "Unable to load authenticator settings right now.";
+          messageOf(error, "Unable to load authenticator settings right now.");
         mfaStatusIcon.setAttribute("icon", "hugeicons:alert-02");
         mfaRetryButton.textContent = mfaRequiresReauth ? "Sign in again" : "Retry";
         mfaRetryButton.classList.remove("hidden");
@@ -1371,7 +1396,7 @@
           cache: "no-store",
           headers: { Accept: "application/json" }
         });
-        const options = await optionsResponse.json().catch(() => ({}));
+        const options = await readJson(optionsResponse).catch(() => ({}));
         if (!optionsResponse.ok) {
           if (options.error === "reauthentication_required" || optionsResponse.status === 403) {
             closeSecurityActionDialog(true);
@@ -1395,7 +1420,7 @@
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify({ authentication })
         });
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
         if (!response.ok) {
           if (data.error === "reauthentication_required" || response.status === 403) {
             closeSecurityActionDialog(true);
@@ -1413,7 +1438,7 @@
         securityActionStatus.textContent =
           error?.name === "NotAllowedError"
             ? "Passkey verification was cancelled."
-            : (error.message || "Unable to verify with passkey.");
+            : (messageOf(error, "Unable to verify with passkey."));
       } finally {
         securityActionBusy = false;
         securityPasskeyButton.disabled = false;
@@ -1487,7 +1512,7 @@
           body: JSON.stringify(body)
         });
 
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
           if (data.error === "reauthentication_required" || response.status === 403) {
@@ -1536,7 +1561,7 @@
         await loadMfaStatus();
         showSnackbar("Recovery codes regenerated. Previous codes no longer work.");
       } catch (error) {
-        securityActionStatus.textContent = error.message || "Unable to update authenticator settings.";
+        securityActionStatus.textContent = messageOf(error, "Unable to update authenticator settings.");
       } finally {
         securityActionBusy = false;
         submitSecurityAction.disabled = false;
@@ -1555,14 +1580,14 @@
           cache: "no-store",
           headers: { Accept: "application/json" }
         });
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
           if (data.error === "reauthentication_required" || response.status === 403) {
             redirectForSecurityReauth();
             return;
           }
-          throw new Error(data.error || "Unable to start authenticator setup.");
+          throw new Error(messageOf(data.error, "Unable to start authenticator setup."));
         }
 
         if (!data.qrDataUrl || !data.secret) {
@@ -1577,7 +1602,7 @@
         mfaConfirmButton.textContent = "Enable authenticator";
         mfaSetupCode.focus();
       } catch (error) {
-        showSnackbar(error.message || "Unable to start authenticator setup.");
+        showSnackbar(messageOf(error, "Unable to start authenticator setup."));
       } finally {
         mfaSetupButton.disabled = false;
       }
@@ -1605,14 +1630,14 @@
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify({ code })
         });
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
           if (data.error === "reauthentication_required" || response.status === 403) {
             redirectForSecurityReauth();
             return;
           }
-          throw new Error(data.error || "Unable to enable authenticator.");
+          throw new Error(messageOf(data.error, "Unable to enable authenticator."));
         }
 
         if (!Array.isArray(data.recovery_codes) || data.recovery_codes.length === 0) {
@@ -1636,7 +1661,7 @@
           ? "Authenticator changed. Save your new recovery codes."
           : "Authenticator enabled. Save your recovery codes.");
       } catch (error) {
-        showSnackbar(error.message || "Unable to enable authenticator.");
+        showSnackbar(messageOf(error, "Unable to enable authenticator."));
       } finally {
         mfaConfirmButton.disabled = false;
       }
@@ -1660,14 +1685,14 @@
           credentials: "same-origin",
           headers: { Accept: "application/json" }
         });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.error || "Unable to revoke service access.");
+        const data = await readJson(response).catch(() => ({}));
+        if (!response.ok) throw new Error(messageOf(data.error, "Unable to revoke service access."));
         haptic("success");
         showSnackbar("Service access revoked.");
         await loadLoggedInServices();
       } catch (error) {
         button.disabled = false;
-        showSnackbar(error.message || "Unable to revoke service access.");
+        showSnackbar(messageOf(error, "Unable to revoke service access."));
       }
     }
 
@@ -1763,7 +1788,7 @@
             }
           });
 
-          const data = await response.json().catch(() => ({}));
+          const data = await readJson(response).catch(() => ({}));
 
           if (response.status === 401 || response.status === 403) {
             location.replace("/login?return=" + encodeURIComponent(location.pathname + location.search));
@@ -1771,7 +1796,7 @@
           }
 
           if (!response.ok) {
-            const message = String(data.error || "").trim();
+            const message = String(messageOf(data.error, "")).trim();
 
             // A transient database/deployment failure should not strand the
             // account screen. Retry briefly before showing the error state.
@@ -1870,13 +1895,13 @@
           }
         );
 
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (sequence !== usernameCheckSequence) return;
 
         if (!response.ok) {
           usernameStatus.textContent =
-            data.error || "Unable to check username.";
+            messageOf(data.error, "Unable to check username.");
           return;
         }
 
@@ -1966,7 +1991,7 @@
           })
         });
 
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
           if (data.error === "username_change_cooldown") {
@@ -1976,7 +2001,7 @@
             throw new Error("Base users can change their username once every 30 days. Next change: " + next + ".");
           }
           throw new Error(
-            data.error || "Unable to update your account."
+            messageOf(data.error, "Unable to update your account.")
           );
         }
 
@@ -1993,7 +2018,7 @@
         );
       } catch (error) {
         showSnackbar(
-          error.message || "Unable to update your account."
+          messageOf(error, "Unable to update your account.")
         );
       } finally {
         saveButton.disabled = false;
@@ -2024,7 +2049,7 @@
           }
         );
 
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
           if (response.status === 429) {
@@ -2035,7 +2060,7 @@
           }
 
           throw new Error(
-            data.error || "Unable to send verification email."
+            messageOf(data.error, "Unable to send verification email.")
           );
         }
 
@@ -2049,7 +2074,7 @@
         showSnackbar("Verification email sent. Check your inbox.");
       } catch (error) {
         showSnackbar(
-          error.message || "Unable to send verification email."
+          messageOf(error, "Unable to send verification email.")
         );
       } finally {
         emailVerificationBusy = false;
@@ -2112,7 +2137,7 @@
           })
         });
 
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -2121,7 +2146,7 @@
           }
 
           throw new Error(
-            data.error || "Unable to change your password."
+            messageOf(data.error, "Unable to change your password.")
           );
         }
 
@@ -2133,7 +2158,7 @@
         }, 700);
       } catch (error) {
         passwordStatus.textContent =
-          error.message || "Unable to change your password.";
+          messageOf(error, "Unable to change your password.");
       } finally {
         passwordChangeBusy = false;
         changePasswordButton.disabled = false;
@@ -2175,18 +2200,18 @@
           headers: { "Accept": "application/json" }
         });
 
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
           throw new Error(
-            data.error || "Unable to delete your account."
+            messageOf(data.error, "Unable to delete your account.")
           );
         }
 
         location.replace("/");
       } catch (error) {
         showSnackbar(
-          error.message || "Unable to delete your account."
+          messageOf(error, "Unable to delete your account.")
         );
 
         confirmDelete.disabled = false;
@@ -2298,10 +2323,10 @@
           headers: { Accept: "application/json" }
         });
 
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
-          throw new Error(data.error || "Unable to load passkeys.");
+          throw new Error(messageOf(data.error, "Unable to load passkeys."));
         }
 
         passkeyAccountList.innerHTML = "";
@@ -2347,11 +2372,11 @@
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify({ name })
               });
-              const body = await result.json().catch(() => ({}));
-              if (!result.ok) throw new Error(body.error || "Unable to rename passkey.");
+              const body = await readJson(result).catch(() => ({}));
+              if (!result.ok) throw new Error(messageOf(body.error, "Unable to rename passkey."));
               passkeyAccountMessage.textContent = "Passkey renamed."; await loadPasskeys();
             } catch (error) {
-              passkeyAccountMessage.textContent = error.message || "Unable to rename passkey.";
+              passkeyAccountMessage.textContent = messageOf(error, "Unable to rename passkey.");
             } finally { rename.disabled = false; }
           });
 
@@ -2371,17 +2396,17 @@
                 headers: { Accept: "application/json" }
               });
 
-              const body = await result.json().catch(() => ({}));
+              const body = await readJson(result).catch(() => ({}));
 
               if (!result.ok) {
-                throw new Error(body.error || "Unable to remove passkey.");
+                throw new Error(messageOf(body.error, "Unable to remove passkey."));
               }
 
               passkeyAccountMessage.textContent = "Passkey removed.";
               await loadPasskeys();
             } catch (error) {
               remove.disabled = false;
-              passkeyAccountMessage.textContent = error.message || "Unable to remove passkey.";
+              passkeyAccountMessage.textContent = messageOf(error, "Unable to remove passkey.");
             }
           });
 
@@ -2390,7 +2415,7 @@
           passkeyAccountList.appendChild(row);
         }
       } catch (error) {
-        passkeyAccountStatus.textContent = error.message || "Unable to load passkeys.";
+        passkeyAccountStatus.textContent = messageOf(error, "Unable to load passkeys.");
       }
     }
 
@@ -2415,7 +2440,7 @@
           }
         });
 
-        const options = await optionsResponse.json().catch(() => ({}));
+        const options = await readJson(optionsResponse).catch(() => ({}));
 
         if (!optionsResponse.ok) {
           if (options.error === "reauthentication_required") {
@@ -2423,7 +2448,7 @@
             return;
           }
 
-          throw new Error(options.error || "Unable to start passkey registration.");
+          throw new Error(messageOf(options.error, "Unable to start passkey registration."));
         }
 
         const passkeyName = prompt("Name this passkey", "Passkey") || "Passkey";
@@ -2449,10 +2474,10 @@
           body: JSON.stringify({ registration, name: passkeyName })
         });
 
-        const result = await verifyResponse.json().catch(() => ({}));
+        const result = await readJson(verifyResponse).catch(() => ({}));
 
         if (!verifyResponse.ok) {
-          throw new Error(result.error || "Unable to register passkey.");
+          throw new Error(messageOf(result.error, "Unable to register passkey."));
         }
 
         passkeyAccountMessage.textContent = "Passkey added.";
@@ -2861,12 +2886,12 @@
         })
       })
         .then(async response => {
-          const data = await response.json().catch(() => ({}));
+          const data = await readJson(response).catch(() => ({}));
           if (!response.ok) {
             throw new Error(
               data.error === "request_not_found_or_number_mismatch"
                 ? "That number does not match. Check the QR screen and try again."
-                : data.error || "Unable to approve this sign-in."
+                : messageOf(data.error, "Unable to approve this sign-in.")
             );
           }
           qrApprovalStatus.textContent = "Approved. The other device will finish signing in.";
@@ -2877,7 +2902,7 @@
           void loadLoginApprovalSettings();
         })
         .catch(error => {
-          qrApprovalStatus.textContent = error.message || "Unable to approve this sign-in.";
+          qrApprovalStatus.textContent = messageOf(error, "Unable to approve this sign-in.");
           qrApprovalConfirm.disabled = false;
         });
     }
@@ -2895,7 +2920,7 @@
           headers: { Accept: "application/json" }
         });
 
-        const data = await response.json().catch(() => ({}));
+        const data = await readJson(response).catch(() => ({}));
         if (!response.ok || !Array.isArray(data.requests)) return;
 
         const request = data.requests[0];
@@ -3013,8 +3038,8 @@
 
       try {
         const response = await fetch("/api/account/login-approval-settings", { credentials: "same-origin", cache: "no-store" });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Unable to load login approval settings.");
+        const data = await readJson(response);
+        if (!response.ok) throw new Error(messageOf(data.error, "Unable to load login approval settings."));
 
         settings.innerHTML = '<label style="display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;"><input id="loginApprovalToggle" type="checkbox" style="width:18px;height:18px;" ' + (data.enabled ? "checked" : "") + '> Require approval for password sign-ins</label>';
         settings.insertAdjacentHTML("beforeend", '<div class="qr-approval-actions"><button id="openQrApprovalScanner" class="mfa-button secondary" type="button">Scan QR to approve sign-in</button></div>');
@@ -3034,7 +3059,7 @@
         unfreezeButton.style.display = data.frozen ? "" : "none";
         freezeStatus.textContent = data.frozen ? "Ace ID is frozen. New sign-ins are blocked." : "";
 
-        const pending = await fetch("/api/account/login-approvals", { credentials: "same-origin", cache: "no-store" }).then(r => r.json());
+        const pending = await fetch("/api/account/login-approvals", { credentials: "same-origin", cache: "no-store" }).then(readJson);
         list.innerHTML = "";
         for (const request of pending.requests || []) {
           const row = document.createElement("div");
@@ -3067,7 +3092,7 @@
           row.append(copy,actions); list.appendChild(row);
         }
       } catch (error) {
-        settings.textContent = error.message || "Unable to load login approvals.";
+        settings.textContent = messageOf(error, "Unable to load login approvals.");
       }
     }
 
@@ -3075,8 +3100,8 @@
       const password = prompt("Enter your password to freeze this account.");
       if (!password) return;
       const response = await fetch("/api/account/freeze", { method:"POST", credentials:"same-origin", headers:{"Content-Type":"application/json"}, body:JSON.stringify({password}) });
-      const data = await response.json().catch(() => ({}));
-      document.getElementById("accountFreezeStatus").textContent = response.ok ? "Ace ID frozen." : (data.error || "Unable to freeze account.");
+      const data = await readJson(response).catch(() => ({}));
+      document.getElementById("accountFreezeStatus").textContent = response.ok ? "Ace ID frozen." : (messageOf(data.error, "Unable to freeze account."));
       if (response.ok) loadLoginApprovalSettings();
     });
 

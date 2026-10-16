@@ -228,7 +228,7 @@
     });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(data.error || "request_failed");
+      throw new Error(typeof data.error === "string" ? data.error : "request_failed");
     }
     return data;
   }
