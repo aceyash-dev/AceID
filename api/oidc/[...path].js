@@ -22,6 +22,15 @@ const ALLOWED_EXACT_PATHS = new Set([
   "/device",
   "/health/live",
   "/health/ready",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+  "/logout",
+  "/privacy",
+  "/terms",
+  "/account/unfreeze",
 ]);
 
 const ALLOWED_PATH_PREFIXES = [
@@ -30,6 +39,7 @@ const ALLOWED_PATH_PREFIXES = [
   "/token/",
   "/request/",
   "/connect/",
+  "/login/",
 ];
 
 function parseUpstreamOrigin(value) {

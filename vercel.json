@@ -70,31 +70,71 @@
     },
     {
       "source": "/login",
-      "destination": "/login.html"
+      "destination": "/api/oidc/login"
+    },
+    {
+      "source": "/login/:path*",
+      "destination": "/api/oidc/login/:path*"
     },
     {
       "source": "/register",
-      "destination": "/register.html"
+      "destination": "/api/oidc/register"
     },
     {
       "source": "/forgot-password",
-      "destination": "/forgot-password.html"
+      "destination": "/api/oidc/forgot-password"
     },
     {
       "source": "/reset-password",
-      "destination": "/reset-password.html"
+      "destination": "/api/oidc/reset-password"
+    },
+    {
+      "source": "/verify-email",
+      "destination": "/api/oidc/verify-email"
+    },
+    {
+      "source": "/logout",
+      "destination": "/api/oidc/logout"
     },
     {
       "source": "/mfa",
-      "destination": "/mfa.html"
+      "destination": "/api/oidc/login/mfa"
+    },
+    {
+      "source": "/account/unfreeze",
+      "destination": "/api/oidc/account/unfreeze"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/api/oidc/privacy"
+    },
+    {
+      "source": "/terms",
+      "destination": "/api/oidc/terms"
     },
     {
       "source": "/account",
       "destination": "/account.html"
     },
     {
-      "source": "/consent",
-      "destination": "/consent.html"
+      "source": "/account/profile",
+      "destination": "/account.html"
+    },
+    {
+      "source": "/account/security",
+      "destination": "/account.html"
+    },
+    {
+      "source": "/account/devices",
+      "destination": "/account.html"
+    },
+    {
+      "source": "/account/danger",
+      "destination": "/account.html"
+    },
+    {
+      "source": "/account/services",
+      "destination": "/account.html"
     },
     {
       "source": "/services",
