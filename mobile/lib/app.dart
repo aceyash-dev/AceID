@@ -14,7 +14,7 @@ class _AceIdAppState extends State<AceIdApp> {
   final _auth = OidcAuthService();
   bool _loading = true;
   IdentityProfile? _profile;
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.light;
 
   void _toggleTheme() {
     setState(() {
