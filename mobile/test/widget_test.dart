@@ -44,7 +44,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Ace ID'), findsOneWidget);
-    expect(find.text('Your identity,\\nyour way.'), findsOneWidget);
+    expect(find.text('Your identity,\nyour way.'), findsOneWidget);
     expect(
       find.text(
         'One account for the services you use. Sign in to manage your profile, security, and membership.',

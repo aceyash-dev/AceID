@@ -125,7 +125,7 @@ class OidcAuthService {
   Future<IdentityProfile?> signIn() async {
     if (clientId.trim().isEmpty) {
       throw const AuthConfigurationException(
-        'Native sign-in needs the Ace ID mobile client ID. Use web sign-in until it is registered.',
+        'Native sign-in needs a registered Ace ID public mobile client ID. Contact the app administrator to configure native sign-in.',
       );
     }
     final AuthorizationTokenResponse response;
