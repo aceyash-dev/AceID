@@ -7,8 +7,10 @@ import 'core/api_service.dart';
 import 'core/auth_service.dart';
 
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key, required this.onSignIn});
+  const SignInScreen({super.key, required this.onSignIn, required this.isDark, required this.onToggleTheme});
   final Future<void> Function() onSignIn;
+  final bool isDark;
+  final VoidCallback onToggleTheme;
   @override
   State<SignInScreen> createState() => _SignInScreenState();
 }
@@ -37,12 +39,6 @@ class _SignInScreenState extends State<SignInScreen> {
     }
   }
 
-  Future<void> openWeb() async {
-    await launchUrl(
-      Uri.parse('https://identity.ace-base.cc/login'),
-      mode: LaunchMode.externalApplication,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +56,16 @@ class _SignInScreenState extends State<SignInScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const _Brand(showStatus: true),
+                  Row(
+                    children: [
+                      const Expanded(child: _Brand(showStatus: true)),
+                      IconButton(
+                        tooltip: widget.isDark ? 'Switch to light mode' : 'Switch to dark mode',
+                        onPressed: widget.onToggleTheme,
+                        icon: Icon(widget.isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 64),
                   Text(
                     'Your identity,\nyour way.',
@@ -163,15 +168,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                   ],
-                  const SizedBox(height: 12),
-                  OutlinedButton.icon(
-                    onPressed: busy ? null : openWeb,
-                    icon: const HugeIcon(
-                      icon: HugeIcons.strokeRoundedBrowser,
-                      size: 18,
-                    ),
-                    label: const Text('Continue on the web'),
-                  ),
                   const SizedBox(height: 36),
                   Divider(color: theme.dividerTheme.color),
                   const SizedBox(height: 12),
@@ -182,6 +178,14 @@ class _SignInScreenState extends State<SignInScreen> {
                       letterSpacing: .8,
                       fontWeight: FontWeight.w700,
                     ),
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 20,
+                    children: [
+                      TextButton(onPressed: () => launchUrl(Uri.parse('https://identity.ace-base.cc/privacy'), mode: LaunchMode.externalApplication), child: const Text('Privacy')),
+                      TextButton(onPressed: () => launchUrl(Uri.parse('https://identity.ace-base.cc/terms'), mode: LaunchMode.externalApplication), child: const Text('Terms')),
+                    ],
                   ),
                 ],
               ),
@@ -215,10 +219,14 @@ class HomeScreen extends StatefulWidget {
     required this.profile,
     required this.auth,
     required this.onSignOut,
+    required this.isDark,
+    required this.onToggleTheme,
   });
   final IdentityProfile profile;
   final OidcAuthService auth;
   final Future<void> Function() onSignOut;
+  final bool isDark;
+  final VoidCallback onToggleTheme;
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -271,6 +279,11 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const _Brand(),
         actions: [
+          IconButton(
+            tooltip: widget.isDark ? 'Switch to light mode' : 'Switch to dark mode',
+            onPressed: widget.onToggleTheme,
+            icon: Icon(widget.isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined),
+          ),
           IconButton(
             tooltip: 'Sign out',
             onPressed: widget.onSignOut,
@@ -441,11 +454,11 @@ class _Brand extends StatelessWidget {
       ),
       const SizedBox(width: 9),
       Text(
-        'ace id.',
+        'Ace ID',
         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-          fontFamily: 'InstrumentSerif',
-          fontSize: 28,
-          fontWeight: FontWeight.w400,
+          fontFamily: 'Satoshi',
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
           letterSpacing: -.5,
         ),
       ),

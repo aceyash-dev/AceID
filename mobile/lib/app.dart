@@ -14,6 +14,13 @@ class _AceIdAppState extends State<AceIdApp> {
   final _auth = OidcAuthService();
   bool _loading = true;
   IdentityProfile? _profile;
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _toggleTheme() {
+    setState(() {
+      _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    });
+  }
 
   @override
   void initState() {
@@ -46,13 +53,23 @@ class _AceIdAppState extends State<AceIdApp> {
     debugShowCheckedModeBanner: false,
     theme: AceTheme.light,
     darkTheme: AceTheme.dark,
-    themeMode: ThemeMode.system,
+    themeMode: _themeMode,
     home: _loading
         ? const Scaffold(
             body: Center(child: CircularProgressIndicator(strokeWidth: 2)),
           )
         : _profile == null
-        ? SignInScreen(onSignIn: _signIn)
-        : HomeScreen(profile: _profile!, auth: _auth, onSignOut: _signOut),
+        ? SignInScreen(
+            onSignIn: _signIn,
+            isDark: _themeMode == ThemeMode.dark,
+            onToggleTheme: _toggleTheme,
+          )
+        : HomeScreen(
+            profile: _profile!,
+            auth: _auth,
+            onSignOut: _signOut,
+            isDark: _themeMode == ThemeMode.dark,
+            onToggleTheme: _toggleTheme,
+          ),
   );
 }
