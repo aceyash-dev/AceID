@@ -95,10 +95,36 @@ function mapOIDCPath(requestUrl) {
   return { pathAndQuery: path + parsed.search };
 }
 
-function sendError(res, statusCode, code, description) {
+function escapeText(value) {
+  return String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+function wantsHtml(req) {
+  const accept = String(req?.headers?.accept || "");
+  return accept.includes("text/html") && !accept.includes("application/json");
+}
+
+// Browsers opening an account page should see a readable message, not raw JSON.
+// API and OIDC clients keep receiving the JSON error body.
+function sendError(res, statusCode, code, description, req) {
   res.statusCode = statusCode;
-  res.setHeader("content-type", "application/json; charset=utf-8");
   res.setHeader("cache-control", "no-store");
+  if (req && wantsHtml(req)) {
+    res.setHeader("content-type", "text/html; charset=utf-8");
+    res.end(
+      "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">" +
+      "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
+      "<title>Ace ID is unavailable</title>" +
+      "<style>body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:system-ui,sans-serif;background:#fafaf8;color:#111}" +
+      "main{max-width:440px}h1{font-size:22px;margin:0 0 12px}p{line-height:1.5;color:#444;margin:0 0 10px}small{color:#777;font-family:monospace}</style>" +
+      "</head><body><main><h1>Ace ID is temporarily unavailable</h1>" +
+      "<p>" + escapeText(description) + "</p>" +
+      "<p>Please try again in a few minutes.</p>" +
+      "<small>" + escapeText(code) + "</small></main></body></html>"
+    );
+    return;
+  }
+  res.setHeader("content-type", "application/json; charset=utf-8");
   res.end(JSON.stringify({ error: code, error_description: description }));
 }
 
@@ -110,6 +136,7 @@ function handler(req, res) {
       404,
       "not_found",
       "The requested OIDC endpoint does not exist.",
+      req,
     );
   }
 
@@ -120,6 +147,7 @@ function handler(req, res) {
       503,
       parsedOrigin.error,
       "The backend origin is not configured for this deployment.",
+      req,
     );
   }
   if (parsedOrigin.error) {
@@ -128,6 +156,7 @@ function handler(req, res) {
       503,
       parsedOrigin.error,
       "ACEID_API_BASE_URL must be a clean HTTPS origin without a path, query, or credentials.",
+      req,
     );
   }
 
@@ -182,6 +211,7 @@ function handler(req, res) {
       502,
       "oidc_upstream_unavailable",
       "The OIDC backend could not be reached.",
+      req,
     );
   });
 
