@@ -10,6 +10,35 @@
   let paymentConfigured = false;
   let checkoutBusy = false;
 
+  // Never surface a raw platform error object or a JSON parse failure: coerce
+  // whatever the API returns into a readable string.
+  function apiErrorMessage(payload, fallback) {
+    if (typeof payload === "string") {
+      const text = payload.trim();
+      if (text) return text;
+    }
+    if (payload && typeof payload === "object") {
+      for (const candidate of [payload.error, payload.error_description, payload.message]) {
+        if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+        if (candidate && typeof candidate === "object") {
+          if (typeof candidate.message === "string" && candidate.message.trim()) return candidate.message.trim();
+          if (typeof candidate.error === "string" && candidate.error.trim()) return candidate.error.trim();
+        }
+      }
+    }
+    return fallback;
+  }
+
+  async function readApiPayload(response) {
+    const raw = await response.text().catch(() => "");
+    const text = String(raw || "").trim();
+    if (!text) return {};
+    if (text.startsWith("{") || text.startsWith("[")) {
+      try { return JSON.parse(text); } catch { /* fall through */ }
+    }
+    return { error: "Ace ID returned an unexpected response. Please try again." };
+  }
+
   function escapeHtml(value) {
     return String(value ?? "")
       .replaceAll("&", "&amp;")
@@ -226,9 +255,9 @@
       headers: { "Accept": "application/json", ...(options?.headers || {}) },
       ...options
     });
-    const data = await response.json().catch(() => ({}));
+    const data = await readApiPayload(response);
     if (!response.ok) {
-      throw new Error(data.error || "request_failed");
+      throw new Error(apiErrorMessage(data, "request_failed"));
     }
     return data;
   }

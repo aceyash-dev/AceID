@@ -138,4 +138,5 @@ function handler(req, res) {
 }
 
 handler.parseUpstreamOrigin = parseUpstreamOrigin;
+handler.isAllowedApiPath = isAllowedApiPath;
 module.exports = handler;

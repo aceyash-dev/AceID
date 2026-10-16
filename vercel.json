@@ -137,6 +137,10 @@
       "destination": "/account.html"
     },
     {
+      "source": "/account/subscription",
+      "destination": "/subscription.html"
+    },
+    {
       "source": "/services",
       "destination": "/services.html"
     },
