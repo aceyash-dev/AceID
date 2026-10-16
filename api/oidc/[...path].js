@@ -171,8 +171,11 @@ function handler(req, res) {
 
   // Preserve the public issuer host for OIDC redirects and cookie scope.
   // TLS still connects to the configured backend hostname.
+  // The edge in front of the backend routes by its own hostname, so Host must be
+  // the upstream host. The public issuer host travels in X-Forwarded-Host, which
+  // the provider uses (proxy trust) to build URLs.
   const publicHost = String(req.headers?.host || "identity.ace-base.cc");
-  headers.host = publicHost;
+  headers.host = upstream.host;
   headers["x-forwarded-host"] = publicHost;
   headers["x-forwarded-proto"] = "https";
   headers["cache-control"] = "no-store";
