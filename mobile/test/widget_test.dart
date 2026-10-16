@@ -27,20 +27,24 @@ void main() {
     },
   );
 
-  testWidgets('Ace ID sign-in surface renders the current account copy', (
+  testWidgets('sign-in screen shows native sign-in and legal links only', (
     tester,
   ) async {
     await tester.pumpWidget(
       MaterialApp(
         theme: AceTheme.light,
-        home: SignInScreen(onSignIn: () async {}),
+        home: SignInScreen(
+          onSignIn: () async {},
+          isDark: false,
+          onToggleTheme: () {},
+        ),
       ),
     );
 
     await tester.pumpAndSettle();
 
-    expect(find.text('ace id.'), findsOneWidget);
-    expect(find.text('Your identity,\nyour way.'), findsOneWidget);
+    expect(find.text('Ace ID'), findsOneWidget);
+    expect(find.text('Your identity,\\nyour way.'), findsOneWidget);
     expect(
       find.text(
         'One account for the services you use. Sign in to manage your profile, security, and membership.',
@@ -48,8 +52,33 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Continue with Ace ID'), findsOneWidget);
-    expect(find.text('Continue on the web'), findsOneWidget);
+    expect(find.text('Continue on the web'), findsNothing);
+    expect(find.text('Privacy'), findsOneWidget);
+    expect(find.text('Terms'), findsOneWidget);
     expect(find.text('Membership and subscriptions'), findsOneWidget);
+  });
+
+  testWidgets('theme toggle changes its accessible action label', (
+    tester,
+  ) async {
+    var isDark = false;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AceTheme.light,
+        home: StatefulBuilder(
+          builder: (context, setState) => SignInScreen(
+            onSignIn: () async {},
+            isDark: isDark,
+            onToggleTheme: () => setState(() => isDark = !isDark),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Switch to dark mode'), findsOneWidget);
+    await tester.tap(find.byTooltip('Switch to dark mode'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Switch to light mode'), findsOneWidget);
   });
 
   testWidgets('native sign-in configuration failures remain recoverable', (
@@ -62,6 +91,8 @@ void main() {
           onSignIn: () => throw const AuthConfigurationException(
             'Native sign-in needs the Ace ID mobile client ID.',
           ),
+          isDark: false,
+          onToggleTheme: () {},
         ),
       ),
     );
