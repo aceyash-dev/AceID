@@ -1,6 +1,6 @@
 # Ace ID for Android
 
-The Flutter Android account client for **Ace ID by The Ace Base**. It supports OIDC sign-in, profile management, account security, sessions/devices, connected applications, and subscription views.
+The Flutter Android account client for **Ace ID by The Ace Base**. It supports native OIDC sign-in, profile management, account security, sessions/devices, connected applications, and subscription views.
 
 ## Design system
 
@@ -16,7 +16,7 @@ GET responses are checked against the server on each online refresh. A local enc
 
 ## Build locally
 
-Requirements: Flutter stable (3.29 or later), Dart 3.6+, Android SDK, and access to the registered public OIDC client configuration.
+Requirements: Flutter stable (3.29 or later), Dart 3.6+, Android SDK, and a registered public OIDC client ID.
 
 ```sh
 cd mobile
@@ -24,9 +24,23 @@ bash tool/fetch_fonts.sh
 flutter pub get
 flutter analyze
 flutter test
-flutter build apk --release --dart-define=ACEID_MOBILE_CLIENT_ID=YOUR_REGISTERED_PUBLIC_CLIENT_ID
+flutter build apk --release \
+  --dart-define=ACEID_MOBILE_CLIENT_ID=YOUR_REGISTERED_PUBLIC_CLIENT_ID \
+  --dart-define=ACEID_MOBILE_REDIRECT_URI=app.tab.aid:/oauth2redirect
 ```
 
-Use a registered **public** OIDC client ID. Never embed a client secret, database credential, or backend secret in the APK. The CI workflow downloads font assets from their official sources, runs analysis and widget tests, then uploads ABI-specific APK artifacts.
+Use a registered **public** OIDC client ID. Never embed a client secret, database credential, or backend secret in the APK. The registered redirect URI must exactly match `app.tab.aid:/oauth2redirect`.
 
-Product documentation: https://docs.ace-base.cc
+The Android CI workflow validates the client ID and redirect URI, runs analysis and widget tests, then uploads one `armeabi-v7a` testing APK artifact for 14 days. It does not currently build an `arm64-v8a` APK. CI artifacts are temporary test builds, not signed Play Store release packages.
+
+## Sign-in and account controls
+
+The sign-in screen has no “Continue on the web” button. Native sign-in requires a configured public OIDC client ID; an empty client ID does not trigger a web-login fallback. Password, passkey, MFA, device/session, and account-deletion controls that are not implemented natively may still open the authenticated website. The Privacy and Terms links open the hosted legal pages.
+
+The light/dark theme preference is persisted in secure storage. If preference storage fails, the current session can still use the selected in-memory theme.
+
+## Fonts
+
+Font binaries are fetched from their official sources before local builds and by CI. See [assets/fonts/README.md](assets/fonts/README.md) for sources and licensing notes.
+
+Product and technical documentation: https://docs.ace-base.cc
