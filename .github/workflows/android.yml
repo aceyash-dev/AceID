@@ -42,8 +42,11 @@ jobs:
             echo "::error title=Flutter sources present::The Android client must not contain Dart sources, a pubspec, or Flutter Groovy build files."
             exit 1
           fi
-          if grep -rqi "flutter" mobile/app mobile/settings.gradle.kts mobile/build.gradle.kts mobile/gradle; then
-            echo "::error title=Flutter dependency present::Remove any remaining Flutter reference from the Android client."
+          # Match real Flutter wiring, not prose that merely mentions Flutter.
+          if grep -rnF -e "io.flutter" -e "dev.flutter" -e "flutter.gradle" \
+              -e "flutterEmbedding" -e "FlutterActivity" -e "FlutterPlugin" \
+              mobile/app mobile/settings.gradle.kts mobile/build.gradle.kts mobile/gradle; then
+            echo "::error title=Flutter dependency present::Remove the remaining Flutter plugin or embedding from the Android client."
             exit 1
           fi
 
