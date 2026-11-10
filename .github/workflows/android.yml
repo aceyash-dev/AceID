@@ -1,4 +1,4 @@
-name: Ace ID Android APK
+name: Ace ID Android build
 
 on:
   push:
@@ -13,39 +13,61 @@ permissions:
   contents: read
 
 concurrency:
-  group: android-apk-${{ github.ref }}
+  group: android-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   verify-and-package:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout
-      - uses: subosito/flutter-action@v2
-        name: Set up Flutter
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
         with:
-          channel: stable
-          cache: true
-      - name: Fetch licensed font assets
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Assert the client is native Kotlin
+        shell: bash
+        run: |
+          if find mobile \( -name '*.dart' -o -name 'pubspec.yaml' -o -name '*.gradle' \) -print | grep -q .; then
+            echo "::error title=Flutter sources present::The Android client must not contain Dart sources, a pubspec, or Flutter Groovy build files."
+            exit 1
+          fi
+          # Match real Flutter wiring, not prose that merely mentions Flutter.
+          if grep -rnF -e "io.flutter" -e "dev.flutter" -e "flutter.gradle" \
+              -e "flutterEmbedding" -e "FlutterActivity" -e "FlutterPlugin" \
+              mobile/app mobile/settings.gradle.kts mobile/build.gradle.kts mobile/gradle; then
+            echo "::error title=Flutter dependency present::Remove the remaining Flutter plugin or embedding from the Android client."
+            exit 1
+          fi
+
+      - name: Unit tests
         working-directory: mobile
-        run: bash tool/fetch_fonts.sh
-      - name: Install dependencies
+        env:
+          ACEID_ISSUER: ${{ vars.ACEID_ISSUER || 'https://identity.ace-base.cc' }}
+          ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
+          ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
+        run: gradle --no-daemon :app:testDebugUnitTest
+
+      - name: Build debug APK
         working-directory: mobile
-        run: flutter pub get
-      - name: Generate app launcher icon
-        working-directory: mobile
-        run: dart run flutter_launcher_icons
-      - name: Format Dart sources
-        working-directory: mobile
-        run: dart format lib test
-      - name: Analyze Dart
-        working-directory: mobile
-        run: flutter analyze --no-fatal-infos
-      - name: Run widget tests
-        working-directory: mobile
-        run: flutter test
+        env:
+          ACEID_ISSUER: ${{ vars.ACEID_ISSUER || 'https://identity.ace-base.cc' }}
+          ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
+          ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
+        run: gradle --no-daemon :app:assembleDebug
+
+      # Runs after the build so a missing repository variable still yields a
+      # compile and test signal. It must pass before an artifact is published.
       - name: Validate public OIDC client configuration
         env:
           ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
@@ -56,33 +78,15 @@ jobs:
             echo "::error title=Missing mobile OIDC client::Set ACEID_MOBILE_CLIENT_ID to the registered public OIDC client ID. Do not configure a client secret in the app."
             exit 1
           fi
-          if [[ "$ACEID_MOBILE_REDIRECT_URI" != "app.tab.aid:/oauth2redirect" ]]; then
+          if [[ "${ACEID_MOBILE_REDIRECT_URI:-app.tab.aid:/oauth2redirect}" != "app.tab.aid:/oauth2redirect" ]]; then
             echo "::error title=Invalid mobile redirect URI::Set ACEID_MOBILE_REDIRECT_URI to app.tab.aid:/oauth2redirect."
             exit 1
           fi
-      - name: Generate Android Gradle wrapper
-        shell: bash
-        run: |
-          flutter create --platforms=android --project-name ace_id_mobile --org cc.acebase --no-pub /tmp/ace-id-mobile-wrapper
-          cp /tmp/ace-id-mobile-wrapper/android/gradlew mobile/android/gradlew
-          cp /tmp/ace-id-mobile-wrapper/android/gradlew.bat mobile/android/gradlew.bat
-          mkdir -p mobile/android/gradle/wrapper
-          cp /tmp/ace-id-mobile-wrapper/android/gradle/wrapper/gradle-wrapper.jar mobile/android/gradle/wrapper/gradle-wrapper.jar
-          cp /tmp/ace-id-mobile-wrapper/android/gradle/wrapper/gradle-wrapper.properties mobile/android/gradle/wrapper/gradle-wrapper.properties
-          chmod +x mobile/android/gradlew
-      - name: Build armeabi-v7a testing APK
-        working-directory: mobile
-        env:
-          ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
-          ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
-        run: >-
-          flutter build apk --release --target-platform android-arm
-          --dart-define=ACEID_MOBILE_CLIENT_ID="$ACEID_MOBILE_CLIENT_ID"
-          --dart-define=ACEID_MOBILE_REDIRECT_URI="$ACEID_MOBILE_REDIRECT_URI"
-      - name: Upload armeabi-v7a test APK
+
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: ace-id-armeabi-v7a-test-apk
-          path: mobile/build/app/outputs/flutter-apk/app-release.apk
+          name: ace-id-debug-apk
+          path: mobile/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
