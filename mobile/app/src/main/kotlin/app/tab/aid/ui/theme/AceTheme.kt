@@ -11,15 +11,19 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import app.tab.aid.R
 
-private val Paper = Color(0xFFF4F4F1)
+private val Paper = Color(0xFFF5F5F2)
 private val Ink = Color(0xFF111111)
-private val Line = Color(0xFFD5D5D0)
+private val Line = Color(0xFFD1D1CC)
 private val PanelLight = Color(0xFFFFFFFF)
-private val MutedLight = Color(0xFF5A5A55)
+private val MutedLight = Color(0xFF70706B)
 
 private val NightBackground = Color(0xFF111111)
 private val NightContent = Color(0xFFF5F5F1)
@@ -60,12 +64,26 @@ private val DarkAceColors = AceColors(
 val LocalAceColors = staticCompositionLocalOf { LightAceColors }
 
 /**
- * Instrument Serif for display copy and a humanist sans for UI copy. The
- * licensed binaries are not vendored here; drop them into res/font and swap the
- * families below to match the web client exactly.
+ * The same faces the web client loads: Instrument Serif for display copy and
+ * Satoshi (variable) for UI copy, converted from the files in public/fonts.
  */
-private val DisplayFamily = FontFamily.Serif
-private val UiFamily = FontFamily.SansSerif
+private val DisplayFamily = FontFamily(Font(R.font.instrument_serif_regular, FontWeight.Normal))
+
+@OptIn(ExperimentalTextApi::class)
+private val UiFamily = FontFamily(
+    listOf(
+        FontWeight.W400,
+        FontWeight.W500,
+        FontWeight.W700,
+        FontWeight.W800,
+    ).map { weight ->
+        Font(
+            resId = R.font.satoshi_variable,
+            weight = weight,
+            variationSettings = FontVariation.Settings(FontVariation.weight(weight.weight)),
+        )
+    },
+)
 
 private val AceTypography = Typography(
     displayLarge = TextStyle(
