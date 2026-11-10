@@ -35,21 +35,6 @@ jobs:
         with:
           gradle-version: "8.9"
 
-      - name: Validate public OIDC client configuration
-        env:
-          ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
-          ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
-        shell: bash
-        run: |
-          if [[ -z "${ACEID_MOBILE_CLIENT_ID//[[:space:]]/}" ]]; then
-            echo "::error title=Missing mobile OIDC client::Set ACEID_MOBILE_CLIENT_ID to the registered public OIDC client ID. Do not configure a client secret in the app."
-            exit 1
-          fi
-          if [[ "${ACEID_MOBILE_REDIRECT_URI:-app.tab.aid:/oauth2redirect}" != "app.tab.aid:/oauth2redirect" ]]; then
-            echo "::error title=Invalid mobile redirect URI::Set ACEID_MOBILE_REDIRECT_URI to app.tab.aid:/oauth2redirect."
-            exit 1
-          fi
-
       - name: Assert the client is native Kotlin
         shell: bash
         run: |
@@ -77,6 +62,23 @@ jobs:
           ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
           ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
         run: gradle --no-daemon :app:assembleDebug
+
+      # Runs after the build so a missing repository variable still yields a
+      # compile and test signal. It must pass before an artifact is published.
+      - name: Validate public OIDC client configuration
+        env:
+          ACEID_MOBILE_CLIENT_ID: ${{ vars.ACEID_MOBILE_CLIENT_ID }}
+          ACEID_MOBILE_REDIRECT_URI: ${{ vars.ACEID_MOBILE_REDIRECT_URI }}
+        shell: bash
+        run: |
+          if [[ -z "${ACEID_MOBILE_CLIENT_ID//[[:space:]]/}" ]]; then
+            echo "::error title=Missing mobile OIDC client::Set ACEID_MOBILE_CLIENT_ID to the registered public OIDC client ID. Do not configure a client secret in the app."
+            exit 1
+          fi
+          if [[ "${ACEID_MOBILE_REDIRECT_URI:-app.tab.aid:/oauth2redirect}" != "app.tab.aid:/oauth2redirect" ]]; then
+            echo "::error title=Invalid mobile redirect URI::Set ACEID_MOBILE_REDIRECT_URI to app.tab.aid:/oauth2redirect."
+            exit 1
+          fi
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
