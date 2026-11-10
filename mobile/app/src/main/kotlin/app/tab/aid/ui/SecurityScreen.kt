@@ -10,7 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Computer
 import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.OpenInNew
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -117,7 +117,7 @@ fun SecurityScreen(api: AceIdApi, onOpenWeb: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(0.dp),
                 ) {
-                    Icon(Icons.Outlined.OpenInNew, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
                     Text("More security settings", color = colors.content)
                 }
             }

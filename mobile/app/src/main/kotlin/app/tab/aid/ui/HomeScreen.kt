@@ -21,7 +21,7 @@ import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Icon
@@ -99,7 +99,7 @@ fun HomeScreen(
                     )
                 }
                 IconButton(onClick = onSignOut) {
-                    Icon(Icons.Outlined.Logout, contentDescription = "Sign out", tint = colors.content)
+                    Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = "Sign out", tint = colors.content)
                 }
             }
         },
