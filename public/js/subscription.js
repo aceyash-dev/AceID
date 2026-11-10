@@ -130,7 +130,7 @@
     const startDate = formatDate(sub?.billingPeriodStart);
     const endDate = formatDate(sub?.billingPeriodEnd);
     const statusValue = String(subscription?.status || "active").toLowerCase();
-    let validity = "Included with your Ace ID account.";
+    let validity = "Included with your Ace ID.";
     if (endDate) {
       validity = startDate
         ? `Valid from ${startDate} to ${endDate}.`
@@ -154,7 +154,7 @@
       '<div class="usage">' +
         '<div class="usage-item"><div class="usage-label">Applications</div><div class="usage-value">' +
           formatNumber(subscription?.usage?.applications || 0) + " / " + formatNumber(plan.applications) +
-        '</div><div class="usage-sub">Used this account</div></div>' +
+        '</div><div class="usage-sub">Used this ID</div></div>' +
         '<div class="usage-item"><div class="usage-label">Monthly active users</div><div class="usage-value">' +
           formatNumber(plan.mau) +
         '</div><div class="usage-sub">Monthly limit</div></div>' +
@@ -270,7 +270,7 @@
         checkout_in_progress: "A checkout is already in progress. Complete the existing payment first.",
         checkout_url_missing: "Checkout could not be started."
       };
-      setStatus(messages[error.message] || "Unable to start checkout. Your account was not changed.", "error");
+      setStatus(messages[error.message] || "Unable to start checkout. Your ID was not changed.", "error");
       checkoutBusy = false;
       renderPlans();
     }

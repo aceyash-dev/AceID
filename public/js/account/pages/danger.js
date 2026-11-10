@@ -1,7 +1,7 @@
 export const meta = {
   title: "Danger — Ace ID",
   heading: "Danger zone.",
-  subtitle: "Manage destructive account actions."
+  subtitle: "Manage destructive ID actions."
 };
 
 export function mount() {

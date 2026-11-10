@@ -208,7 +208,7 @@ async function readJson(response) {
           "You can return to Profile and Security whenever you need them.",
           "This tour changes no authentication settings by itself."
         ],
-        note: "You can reopen the relevant account sections at any time. The welcome tour is shown only once."
+        note: "You can reopen the relevant ID sections at any time. The welcome tour is shown only once."
       }
     ];
 
@@ -386,7 +386,7 @@ async function readJson(response) {
     function renderAccountChoices(accounts) {
       accountChoices.innerHTML = '';
       if (!accounts.length) {
-        accountChoices.innerHTML = '<div class="devices-empty" style="padding:18px 12px">No other signed-in accounts.</div>';
+        accountChoices.innerHTML = '<div class="devices-empty" style="padding:18px 12px">No other signed-in IDs.</div>';
         return;
       }
       for (const item of accounts) {
@@ -402,10 +402,10 @@ async function readJson(response) {
           avatar.appendChild(img);
         } else avatar.textContent = getInitial(item.display_name || item.email);
         const copy = document.createElement('span'); copy.className = 'account-choice-copy';
-        const name = document.createElement('span'); name.className = 'account-choice-name'; name.textContent = item.display_name || 'Ace ID account';
-        const meta = document.createElement('span'); meta.className = 'account-choice-meta'; meta.textContent = item.username ? '@' + item.username : (item.email || 'Signed in account');
+        const name = document.createElement('span'); name.className = 'account-choice-name'; name.textContent = item.display_name || 'Ace ID member';
+        const meta = document.createElement('span'); meta.className = 'account-choice-meta'; meta.textContent = item.username ? '@' + item.username : (item.email || 'Signed in');
         copy.append(name, meta); button.append(avatar, copy);
-        if (item.current) { const check = document.createElement('iconify-icon'); check.className='account-choice-check'; check.setAttribute('icon','hugeicons:checkmark-circle-02'); check.setAttribute('aria-label','Current account'); button.appendChild(check); }
+        if (item.current) { const check = document.createElement('iconify-icon'); check.className='account-choice-check'; check.setAttribute('icon','hugeicons:checkmark-circle-02'); check.setAttribute('aria-label','Current ID'); button.appendChild(check); }
         button.addEventListener('click', async () => {
           haptic('medium');
 
@@ -470,7 +470,7 @@ async function readJson(response) {
       if (authenticatedAccountsPromise) return authenticatedAccountsPromise;
 
       if (!silent) {
-        accountChoices.innerHTML = '<div class="devices-empty" style="padding:18px 12px">Loading signed-in accounts…</div>';
+        accountChoices.innerHTML = '<div class="devices-empty" style="padding:18px 12px">Loading signed-in IDs…</div>';
       }
 
       authenticatedAccountsPromise = fetch('/api/account/accounts', {
@@ -480,14 +480,14 @@ async function readJson(response) {
       })
         .then(async response => {
           const data = await readJson(response).catch(() => ({}));
-          if (!response.ok) throw new Error(messageOf(data.error, 'Unable to load signed-in accounts.'));
+          if (!response.ok) throw new Error(messageOf(data.error, 'Unable to load signed-in IDs.'));
           renderAccountChoices(data.accounts || []);
           return data.accounts || [];
         })
         .catch(error => {
           authenticatedAccountsPromise = null;
           if (!silent) {
-            accountChoices.textContent = messageOf(error, 'Unable to load signed-in accounts.');
+            accountChoices.textContent = messageOf(error, 'Unable to load signed-in IDs.');
             haptic('error');
           }
           throw error;
@@ -1342,7 +1342,7 @@ async function readJson(response) {
         invalid_recovery_code: "That recovery code is invalid or has already been used.",
         passkey_verification_expired: "Passkey verification expired. Start again.",
         passkey_authentication_required: "Use your passkey to continue.",
-        passkey_not_registered: "That passkey is not registered to this account.",
+        passkey_not_registered: "That passkey is not registered to this ID.",
         passkey_verification_failed: "Passkey verification failed. Try again.",
         "The new authenticator code is incorrect.": "The new authenticator code is incorrect."
       };
@@ -1846,7 +1846,7 @@ async function readJson(response) {
             '</div>';
 
           document.getElementById("retryAccountLoad")?.addEventListener("click", () => {
-            loading.innerHTML = '<span class="ace-loading">Loading your account…</span>';
+            loading.innerHTML = '<span class="ace-loading">Loading your ID…</span>';
             void loadAccount();
           }, { once: true });
 
@@ -2001,7 +2001,7 @@ async function readJson(response) {
             throw new Error("Base users can change their username once every 30 days. Next change: " + next + ".");
           }
           throw new Error(
-            messageOf(data.error, "Unable to update your account.")
+            messageOf(data.error, "Unable to update your ID.")
           );
         }
 
@@ -2014,11 +2014,11 @@ async function readJson(response) {
         showSnackbar(
           emailChanged
             ? "Ace ID updated. Verify your new email address."
-            : "Your account was updated."
+            : "Your ID was updated."
         );
       } catch (error) {
         showSnackbar(
-          messageOf(error, "Unable to update your account.")
+          messageOf(error, "Unable to update your ID.")
         );
       } finally {
         saveButton.disabled = false;
@@ -2204,14 +2204,14 @@ async function readJson(response) {
 
         if (!response.ok) {
           throw new Error(
-            messageOf(data.error, "Unable to delete your account.")
+            messageOf(data.error, "Unable to delete your ID.")
           );
         }
 
         location.replace("/");
       } catch (error) {
         showSnackbar(
-          messageOf(error, "Unable to delete your account.")
+          messageOf(error, "Unable to delete your ID.")
         );
 
         confirmDelete.disabled = false;
@@ -2942,7 +2942,7 @@ async function readJson(response) {
           '<div style="width:min(440px,100%);background:#fff;border:1px solid #111;padding:28px;box-sizing:border-box;box-shadow:0 20px 60px rgba(0,0,0,.22);">' +
             '<div style="font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Ace ID · Sign-in approval</div>' +
             '<h2 style="font:400 38px/1 Georgia,serif;margin:12px 0 8px;">Is this you?</h2>' +
-            '<p style="margin:0;color:var(--muted);font-size:13px;line-height:1.5;">A new device is trying to sign in to your account.</p>' +
+            '<p style="margin:0;color:var(--muted);font-size:13px;line-height:1.5;">A new device is trying to sign in to your ID.</p>' +
             '<div style="margin:24px 0;padding:18px;background:#f5f5f2;border:1px solid var(--line);text-align:center;">' +
               '<div style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);">Match this number</div>' +
               '<div id="loginApprovalNumber" style="font-size:58px;font-weight:900;letter-spacing:.16em;margin:6px 0 4px;"></div>' +
@@ -3097,11 +3097,11 @@ async function readJson(response) {
     }
 
     document.getElementById("freezeAccountButton").addEventListener("click", async () => {
-      const password = prompt("Enter your password to freeze this account.");
+      const password = prompt("Enter your password to freeze this ID.");
       if (!password) return;
       const response = await fetch("/api/account/freeze", { method:"POST", credentials:"same-origin", headers:{"Content-Type":"application/json"}, body:JSON.stringify({password}) });
       const data = await readJson(response).catch(() => ({}));
-      document.getElementById("accountFreezeStatus").textContent = response.ok ? "Ace ID frozen." : (messageOf(data.error, "Unable to freeze account."));
+      document.getElementById("accountFreezeStatus").textContent = response.ok ? "Ace ID frozen." : (messageOf(data.error, "Unable to freeze ID."));
       if (response.ok) loadLoginApprovalSettings();
     });
 
@@ -3246,7 +3246,7 @@ async function readJson(response) {
       danger: {
         title: "Danger — Ace ID",
         heading: "Danger zone.",
-        subtitle: "Manage destructive account actions."
+        subtitle: "Manage destructive ID actions."
       }
     };
 
