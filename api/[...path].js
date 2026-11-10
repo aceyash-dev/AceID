@@ -36,11 +36,10 @@ function parseUpstreamOrigin(value) {
   }
 }
 
-// Only the account, subscription and auth endpoints the frontend calls are
+// Only the account and auth endpoints the frontend calls are
 // forwarded; everything else under /api is refused before reaching the backend.
 const ALLOWED_API_PREFIXES = [
   "/api/account",
-  "/api/subscription",
   "/api/email-verification",
   "/api/username-availability",
   "/api/login",

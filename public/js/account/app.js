@@ -927,43 +927,6 @@ async function readJson(response) {
 
       setAvatar(avatarImage, avatarFallback, user.avatar_url, name);
       setAvatar(editAvatarImage, editAvatarFallback, user.avatar_url, name);
-      void refreshAccountIdEligibility();
-    }
-
-    async function refreshAccountIdEligibility() {
-      try {
-        const response = await fetch("/api/subscription", {
-          credentials: "same-origin",
-          cache: "no-store",
-          headers: { "Accept": "application/json" }
-        });
-        const data = await readJson(response).catch(() => ({}));
-        const plan = String(data?.plan || "base").toLowerCase();
-        const cooldownDays = Math.max(0, Number(data?.usernameChangeCooldownDays) || 0);
-        const lastChangedAt = account?.username_changed_at ? new Date(account.username_changed_at) : null;
-        const nextAllowedAt = lastChangedAt && Number.isFinite(lastChangedAt.getTime()) && cooldownDays > 0
-          ? new Date(lastChangedAt.getTime() + cooldownDays * 24 * 60 * 60 * 1000)
-          : null;
-        const cooldownActive = Boolean(nextAllowedAt && nextAllowedAt > new Date());
-        const allowed = !cooldownActive;
-        usernameInput.disabled = !allowed;
-        usernameInput.title = allowed
-          ? plan === "base"
-            ? "Base users can change their username once every 30 days."
-            : "Your plan does not impose a username change cooldown."
-          : "Username can be changed again after " + nextAllowedAt.toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" }) + ".";
-        if (cooldownActive) {
-          usernameStatus.textContent = "Base plan: next username change available " +
-            nextAllowedAt.toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" }) + ".";
-        } else if (plan === "base") {
-          usernameStatus.textContent = "Base plan: username changes are limited to once every 30 days.";
-        } else {
-          usernameStatus.textContent = "Your plan allows username changes without a cooldown.";
-        }
-      } catch {
-        usernameInput.disabled = false;
-        usernameInput.title = "Username eligibility will be checked when you save.";
-      }
     }
 
     function populateForm() {
@@ -1994,12 +1957,6 @@ async function readJson(response) {
         const data = await readJson(response).catch(() => ({}));
 
         if (!response.ok) {
-          if (data.error === "username_change_cooldown") {
-            const next = data.nextAllowedAt
-              ? new Date(data.nextAllowedAt).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" })
-              : "later";
-            throw new Error("Base users can change their username once every 30 days. Next change: " + next + ".");
-          }
           throw new Error(
             messageOf(data.error, "Unable to update your ID.")
           );

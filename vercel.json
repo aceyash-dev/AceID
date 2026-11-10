@@ -137,16 +137,8 @@
       "destination": "/account.html"
     },
     {
-      "source": "/account/subscription",
-      "destination": "/subscription.html"
-    },
-    {
       "source": "/services",
       "destination": "/services.html"
-    },
-    {
-      "source": "/subscription",
-      "destination": "/subscription.html"
     },
     {
       "source": "/cookie-policy",

@@ -7,11 +7,16 @@ const path = require("node:path");
 
 const read = (...parts) => fs.readFileSync(path.join(__dirname, "..", ...parts), "utf8");
 
-test("account subscription link resolves to the subscription page", () => {
+test("subscription and payment surfaces are absent", () => {
   const config = JSON.parse(read("vercel.json"));
-  const rewrite = config.rewrites.find((r) => r.source === "/account/subscription");
-  assert.ok(rewrite, "missing /account/subscription rewrite");
-  assert.equal(rewrite.destination, "/subscription.html");
+  assert.equal(
+    config.rewrites.find((r) => r.source === "/account/subscription"),
+    undefined,
+    "the subscription rewrite must stay removed",
+  );
+  assert.doesNotMatch(read("public", "account.html"), /\/account\/subscription/);
+  assert.doesNotMatch(read("public", "js", "account", "app.js"), /\/api\/subscription/);
+  assert.doesNotMatch(read("api", "[...path].js"), /\/api\/subscription/);
 });
 
 test("account page never parses responses with a bare response.json()", () => {
