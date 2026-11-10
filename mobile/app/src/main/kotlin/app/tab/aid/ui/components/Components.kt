@@ -225,6 +225,8 @@ fun LabeledField(
             textStyle = MaterialTheme.typography.bodyMedium,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
             prefix = prefix?.let { { Text(it, color = colors.muted) } },
+            // Border colour comes from the theme outline (ace.border); the field
+            // itself is a filled, square-cornered surface with no underline.
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = colors.panel,
                 unfocusedContainerColor = colors.panel,
@@ -232,8 +234,6 @@ fun LabeledField(
                 focusedTextColor = colors.content,
                 unfocusedTextColor = colors.content,
                 cursorColor = colors.content,
-                focusedBorderColor = colors.content,
-                unfocusedBorderColor = colors.border,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
             ),
