@@ -5,18 +5,16 @@ on:
     branches: ["main"]
     paths:
       - "api/**"
-      - "public/.well-known/**"
-      - "test/api-proxy.test.cjs"
-      - "test/oidc-discovery.test.cjs"
+      - "public/**"
+      - "test/**"
       - "vercel.json"
       - ".github/workflows/frontend-api-proxy.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "api/**"
-      - "public/.well-known/**"
-      - "test/api-proxy.test.cjs"
-      - "test/oidc-discovery.test.cjs"
+      - "public/**"
+      - "test/**"
       - "vercel.json"
       - ".github/workflows/frontend-api-proxy.yml"
 
@@ -35,5 +33,8 @@ jobs:
         run: |
           node --check 'api/[...path].js'
           node --check 'api/oidc/[...path].js'
-      - name: Run proxy and OIDC discovery tests
-        run: node --test test/api-proxy.test.cjs test/oidc-discovery.test.cjs
+      - name: Check frontend scripts
+        run: |
+          for f in $(find public/js -name "*.js"); do node --check "$f"; done
+      - name: Run all tests
+        run: node --test test/*.test.cjs

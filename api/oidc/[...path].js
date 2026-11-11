@@ -204,11 +204,22 @@ function handler(req, res) {
     },
   );
 
+  let timedOut = false;
   upstreamRequest.on("timeout", () => {
-    upstreamRequest.destroy(new Error("OIDC upstream timed out"));
+    timedOut = true;
+    upstreamRequest.destroy(new Error("oidc_upstream_timeout"));
   });
   upstreamRequest.on("error", () => {
     if (res.headersSent) return res.destroy();
+    if (timedOut) {
+      return sendError(
+        res,
+        504,
+        "oidc_upstream_timeout",
+        "The OIDC backend took too long to respond.",
+        req,
+      );
+    }
     sendError(
       res,
       502,
