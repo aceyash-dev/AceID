@@ -30,3 +30,16 @@ test("account page never throws raw API objects into Error messages", () => {
   assert.doesNotMatch(source, /new Error\(\w+\.error \|\|/);
   assert.match(source, /function messageOf\(value, fallback\)/);
 });
+
+test("onboarding can always be dismissed, even if the save fails", () => {
+  const source = read("public", "js", "account", "app.js");
+  const start = source.indexOf("async function completeOnboarding");
+  assert.ok(start !== -1, "completeOnboarding is missing");
+  const body = source.slice(start, source.indexOf("\n    }", start));
+  assert.ok(body.includes("closeOnboarding();"), "the tour must close itself");
+  assert.ok(
+    body.indexOf("closeOnboarding();") < body.indexOf("await fetch("),
+    "the tour must close before the completion request is awaited"
+  );
+  assert.match(body, /AbortController/, "the completion request must be bounded so it cannot hang");
+});

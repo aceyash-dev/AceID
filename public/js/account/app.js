@@ -337,23 +337,41 @@ async function readJson(response) {
       onboardingSkip.disabled = true;
       onboardingBack.disabled = true;
 
+      // Dismiss first, persist second. The tour must never trap the user: if the
+      // completion request fails, is rejected, or never returns, we still close
+      // the dialog and say so, instead of leaving them stuck on a dead modal.
+      if (account) account.onboarding_required = false;
+      closeOnboarding();
+
+      let saveError = null;
       try {
-        const response = await fetch("/api/account/onboarding/complete", {
-          method: "POST",
-          credentials: "same-origin",
-          headers: { "Accept": "application/json" }
-        });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        let response;
+        try {
+          response = await fetch("/api/account/onboarding/complete", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Accept": "application/json" },
+            signal: controller.signal
+          });
+        } finally {
+          clearTimeout(timeout);
+        }
         const data = await readJson(response).catch(() => ({}));
         if (!response.ok) throw new Error(messageOf(data.error, "Unable to save onboarding state."));
-        if (account) account.onboarding_required = false;
-        closeOnboarding();
       } catch (error) {
+        saveError = error;
+      } finally {
         onboardingBusy = false;
-        onboardingNext.disabled = false;
-        onboardingSkip.disabled = false;
-        onboardingBack.disabled = onboardingIndex === 0;
-        onboardingNext.textContent = "Done";
-        showSnackbar(messageOf(error, "Unable to save onboarding state."));
+      }
+
+      if (saveError) {
+        showSnackbar(
+          saveError.name === "AbortError"
+            ? "Saving the tour took too long. It is closed for now and may appear again."
+            : messageOf(saveError, "Unable to save onboarding state. It is closed for now and may appear again.")
+        );
       }
     }
 
