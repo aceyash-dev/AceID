@@ -7,11 +7,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import app.tab.aid.ui.theme.AceTheme
 import app.tab.aid.ui.theme.LocalAceColors
 
@@ -38,13 +40,17 @@ fun AceIdRoot(viewModel: AppViewModel, onStartSignIn: () -> Unit) {
                     onSignIn = onStartSignIn,
                 )
 
-                is SessionState.SignedIn -> HomeScreen(
-                    profile = current.profile,
-                    api = viewModel.api,
-                    darkTheme = darkTheme,
-                    onToggleTheme = viewModel::toggleTheme,
-                    onSignOut = viewModel::signOut,
-                )
+                is SessionState.SignedIn -> CompositionLocalProvider(
+                    LocalViewModelStoreOwner provides viewModel.screenScope,
+                ) {
+                    HomeScreen(
+                        profile = current.profile,
+                        api = viewModel.api,
+                        darkTheme = darkTheme,
+                        onToggleTheme = viewModel::toggleTheme,
+                        onSignOut = viewModel::signOut,
+                    )
+                }
             }
         }
     }

@@ -2,6 +2,8 @@ package app.tab.aid.ui
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -20,11 +22,20 @@ sealed interface SessionState {
     data class SignedIn(val profile: IdentityProfile) : SessionState
 }
 
+/** Owns the screen ViewModels of one signed-in session, so none outlive sign-out. */
+class SessionScope : ViewModelStoreOwner {
+    override val viewModelStore = ViewModelStore()
+}
+
 /** Session, theme, and sign-in progress for the whole app. */
 class AppViewModel(private val container: AppContainer) : ViewModel() {
 
     /** Screens reach the account API through the container the app owns. */
     val api: AceIdApi get() = container.api
+
+    /** Replaced on sign-out; the old scope is cleared so account data cannot leak into the next session. */
+    var screenScope = SessionScope()
+        private set
 
     private val _session = MutableStateFlow<SessionState>(SessionState.Loading)
     val session: StateFlow<SessionState> = _session.asStateFlow()
@@ -83,6 +94,8 @@ class AppViewModel(private val container: AppContainer) : ViewModel() {
             _signingIn.value = false
             _signInError.value = null
             _session.value = SessionState.SignedOut
+            screenScope.viewModelStore.clear()
+            screenScope = SessionScope()
         }
     }
 

@@ -36,9 +36,14 @@ class AceIdApi(
         path: String,
         body: JSONObject? = null,
     ): JSONObject = withContext(Dispatchers.IO) {
-        val token = tokens.accessToken() ?: throw ApiException(ApiErrors.SESSION_EXPIRED)
         val isRead = method == "GET"
         val cached = if (isRead) cache.read(path) else null
+        val token = try {
+            tokens.accessToken()
+        } catch (error: ApiException) {
+            // The token could not be refreshed (offline or provider down).
+            return@withContext cached?.data ?: throw error
+        } ?: throw ApiException(ApiErrors.SESSION_EXPIRED)
 
         val url = try {
             ApiOrigins.resolve(baseUrl, path)

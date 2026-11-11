@@ -3,12 +3,17 @@ package app.tab.aid.auth
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import app.tab.aid.data.ApiErrors
+import app.tab.aid.data.ApiException
 import app.tab.aid.data.IdentityProfile
 import app.tab.aid.data.Jwt
 import app.tab.aid.data.SessionStore
 import app.tab.aid.data.TokenProvider
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.openid.appauth.AuthorizationException
 import net.openid.appauth.AuthorizationRequest
@@ -39,12 +44,23 @@ class AuthRepository(
     private val service = AuthorizationService(appContext)
     private var discovery: AuthorizationServiceConfiguration? = null
 
+    /** Serialises refreshes so a rotated refresh token is never spent twice. */
+    private val refreshMutex = Mutex()
+
     /** Restores a still-valid session, or returns null after clearing it. */
     suspend fun restore(): IdentityProfile? = withContext(Dispatchers.IO) {
         val profile = session.profile()
-        if (profile == null || accessToken() == null) {
+        if (profile == null) {
             session.clearSession()
             return@withContext null
+        }
+        try {
+            if (accessToken() == null) {
+                session.clearSession()
+                return@withContext null
+            }
+        } catch (error: ApiException) {
+            // Offline or the provider is down: keep the session and its cached data.
         }
         profile
     }
@@ -122,27 +138,43 @@ class AuthRepository(
 
     /** Returns a valid access token, refreshing it first when it is close to expiry. */
     override suspend fun accessToken(): String? = withContext(Dispatchers.IO) {
+        validToken()?.let { return@withContext it }
+
+        refreshMutex.withLock {
+            // A concurrent caller may have refreshed while this one waited.
+            validToken()?.let { return@withLock it }
+
+            val refreshToken = session.refreshToken()
+            if (refreshToken.isNullOrBlank() || !config.isClientConfigured) return@withLock null
+
+            try {
+                val request = TokenRequest.Builder(loadDiscovery(), config.clientId)
+                    .setGrantType(GrantTypeValues.REFRESH_TOKEN)
+                    .setRefreshToken(refreshToken)
+                    .build()
+                persist(performTokenRequest(request))
+                session.accessToken()
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: AuthorizationException) {
+                // Only a provider rejection ends the session. Timeouts, being
+                // offline, and 5xx responses must not sign the person out.
+                if (isRefreshRejected(error.error)) {
+                    session.clearSession()
+                    null
+                } else {
+                    throw ApiException(ApiErrors.UNREACHABLE)
+                }
+            } catch (error: Exception) {
+                throw ApiException(ApiErrors.UNREACHABLE)
+            }
+        }
+    }
+
+    private fun validToken(): String? {
         val token = session.accessToken()
         val expiresAt = session.expiresAtEpochMillis() ?: 0L
-        if (!token.isNullOrBlank() && expiresAt > System.currentTimeMillis() + EXPIRY_SKEW_MILLIS) {
-            return@withContext token
-        }
-
-        val refreshToken = session.refreshToken()
-        if (refreshToken.isNullOrBlank() || !config.isClientConfigured) return@withContext null
-
-        try {
-            val request = TokenRequest.Builder(loadDiscovery(), config.clientId)
-                .setGrantType(GrantTypeValues.REFRESH_TOKEN)
-                .setRefreshToken(refreshToken)
-                .build()
-            val response = performTokenRequest(request)
-            persist(response)
-            session.accessToken()
-        } catch (error: Exception) {
-            session.clearSession()
-            null
-        }
+        return token?.takeIf { it.isNotBlank() && expiresAt > System.currentTimeMillis() + EXPIRY_SKEW_MILLIS }
     }
 
     /**
@@ -227,3 +259,9 @@ class AuthRepository(
         const val DEFAULT_TOKEN_LIFETIME_MILLIS = 5 * 60 * 1000L
     }
 }
+
+private val REJECTED_REFRESH_ERRORS = setOf("invalid_grant", "invalid_client", "unauthorized_client")
+
+/** True when the provider itself refused the refresh token, as opposed to a transport failure. */
+internal fun isRefreshRejected(error: String?): Boolean =
+    error?.lowercase() in REJECTED_REFRESH_ERRORS
