@@ -13,12 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import app.tab.aid.auth.AceIdConfig
+import app.tab.aid.ui.components.AceIcons
 import app.tab.aid.ui.components.Brand
 import app.tab.aid.ui.theme.LocalAceColors
 
@@ -60,7 +55,7 @@ fun SignInScreen(
             Brand(Modifier.weight(1f))
             IconButton(onClick = onToggleTheme) {
                 Icon(
-                    imageVector = if (darkTheme) Icons.Outlined.LightMode else Icons.Outlined.DarkMode,
+                    imageVector = if (darkTheme) AceIcons.Sun else AceIcons.Moon,
                     contentDescription = if (darkTheme) "Switch to light mode" else "Switch to dark mode",
                     tint = colors.content,
                 )
@@ -95,9 +90,9 @@ fun SignInScreen(
                 color = colors.content,
             )
             Spacer(Modifier.height(18.dp))
-            SignInFeature(Icons.Outlined.Person, "Profile and ID details")
+            SignInFeature(AceIcons.User, "Profile and ID details")
             Spacer(Modifier.height(16.dp))
-            SignInFeature(Icons.Outlined.Shield, "Security and signed-in devices")
+            SignInFeature(AceIcons.Shield, "Security and signed-in devices")
         }
 
         Spacer(Modifier.height(22.dp))
@@ -123,7 +118,7 @@ fun SignInScreen(
                     color = colors.background,
                 )
             } else {
-                Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(AceIcons.Open, contentDescription = null, modifier = Modifier.size(18.dp))
             }
             Spacer(Modifier.width(10.dp))
             Text(

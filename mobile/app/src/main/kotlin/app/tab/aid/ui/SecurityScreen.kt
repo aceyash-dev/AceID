@@ -7,10 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Computer
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.tab.aid.data.AceIdApi
+import app.tab.aid.ui.components.AceIcons
 import app.tab.aid.ui.components.DataTile
 import app.tab.aid.ui.components.EmptyPanel
 import app.tab.aid.ui.components.ErrorPanel
@@ -76,7 +73,7 @@ fun SecurityScreen(api: AceIdApi, onOpenWeb: () -> Unit) {
             items(state.devices.size) { index ->
                 val device = state.devices[index]
                 DataTile(
-                    icon = Icons.Outlined.Computer,
+                    icon = AceIcons.Computer,
                     title = device.optString("device_name").ifBlank {
                         device.optString("browser").ifBlank {
                             device.optString("device_type").ifBlank { "Signed-in device" }
@@ -100,7 +97,7 @@ fun SecurityScreen(api: AceIdApi, onOpenWeb: () -> Unit) {
             items(recentActivity.size) { index ->
                 val entry = recentActivity[index]
                 DataTile(
-                    icon = Icons.Outlined.History,
+                    icon = AceIcons.History,
                     title = entry.optString("name").ifBlank {
                         entry.optString("event_type").ifBlank { "ID activity" }
                     },
@@ -117,7 +114,7 @@ fun SecurityScreen(api: AceIdApi, onOpenWeb: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(0.dp),
                 ) {
-                    Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
+                    Icon(AceIcons.Open, contentDescription = null)
                     Text("More security settings", color = colors.content)
                 }
             }

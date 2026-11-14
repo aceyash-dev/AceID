@@ -15,10 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,6 +35,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.tab.aid.data.AceIdApi
 import app.tab.aid.data.IdentityProfile
+import app.tab.aid.ui.components.AceIcons
 import app.tab.aid.ui.components.ActionTile
 import app.tab.aid.ui.components.ErrorPanel
 import app.tab.aid.ui.components.InfoRow
@@ -148,7 +145,7 @@ fun OverviewScreen(
                             }
                         }
                         Icon(
-                            imageVector = Icons.Outlined.Shield,
+                            imageVector = AceIcons.Shield,
                             contentDescription = null,
                             tint = colors.content,
                             modifier = Modifier.size(22.dp),
@@ -168,7 +165,7 @@ fun OverviewScreen(
                             contentColor = colors.background,
                         ),
                     ) {
-                        Icon(Icons.Outlined.Person, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(AceIcons.User, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text("Manage ID", style = MaterialTheme.typography.labelLarge)
                     }
@@ -176,7 +173,7 @@ fun OverviewScreen(
             }
             item {
                 ActionTile(
-                    icon = Icons.Outlined.Shield,
+                    icon = AceIcons.Shield,
                     title = "Security & devices",
                     subtitle = "Review sessions and ID protection",
                     onClick = onOpenSecurity,
@@ -184,7 +181,7 @@ fun OverviewScreen(
             }
             item {
                 ActionTile(
-                    icon = Icons.Outlined.Link,
+                    icon = AceIcons.Link,
                     title = "Connected apps",
                     subtitle = "Review and revoke app access",
                     onClick = onOpenConnected,

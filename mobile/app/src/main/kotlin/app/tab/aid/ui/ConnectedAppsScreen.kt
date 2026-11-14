@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.GridView
-import androidx.compose.material.icons.outlined.LinkOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,6 +39,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.tab.aid.data.AceIdApi
 import app.tab.aid.data.optStrings
+import app.tab.aid.ui.components.AceIcons
 import app.tab.aid.ui.components.EmptyPanel
 import app.tab.aid.ui.components.ErrorPanel
 import app.tab.aid.ui.theme.LocalAceColors
@@ -146,7 +144,7 @@ fun ConnectedAppsScreen(api: AceIdApi, onMessage: (String) -> Unit) {
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(
-                                Icons.Outlined.GridView,
+                                AceIcons.Grid,
                                 contentDescription = null,
                                 tint = colors.content,
                                 modifier = Modifier.size(22.dp),
@@ -184,7 +182,7 @@ fun ConnectedAppsScreen(api: AceIdApi, onMessage: (String) -> Unit) {
                             enabled = !state.revoking,
                         ) {
                             Icon(
-                                Icons.Outlined.LinkOff,
+                                AceIcons.LinkOff,
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp),
                                 tint = colors.content,

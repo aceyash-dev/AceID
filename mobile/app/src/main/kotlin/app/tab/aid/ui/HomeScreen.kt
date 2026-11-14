@@ -16,14 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.DarkMode
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.LightMode
-import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,15 +39,16 @@ import androidx.compose.ui.unit.dp
 import app.tab.aid.auth.AceIdConfig
 import app.tab.aid.data.AceIdApi
 import app.tab.aid.data.IdentityProfile
+import app.tab.aid.ui.components.AceIcons
 import app.tab.aid.ui.components.Brand
 import app.tab.aid.ui.theme.LocalAceColors
 import kotlinx.coroutines.launch
 
 private enum class Tab(val label: String, val icon: ImageVector) {
-    Home("Home", Icons.Outlined.Home),
-    Security("Security", Icons.Outlined.Shield),
-    Connected("Connected", Icons.Outlined.Link),
-    Id("ID", Icons.Outlined.Person),
+    Home("Home", AceIcons.Home),
+    Security("Security", AceIcons.Shield),
+    Connected("Connected", AceIcons.Link),
+    Id("ID", AceIcons.User),
 }
 
 @Composable
@@ -93,13 +86,13 @@ fun HomeScreen(
                 Brand(Modifier.weight(1f))
                 IconButton(onClick = onToggleTheme) {
                     Icon(
-                        imageVector = if (darkTheme) Icons.Outlined.LightMode else Icons.Outlined.DarkMode,
+                        imageVector = if (darkTheme) AceIcons.Sun else AceIcons.Moon,
                         contentDescription = if (darkTheme) "Switch to light mode" else "Switch to dark mode",
                         tint = colors.content,
                     )
                 }
                 IconButton(onClick = onSignOut) {
-                    Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = "Sign out", tint = colors.content)
+                    Icon(AceIcons.Logout, contentDescription = "Sign out", tint = colors.content)
                 }
             }
         },

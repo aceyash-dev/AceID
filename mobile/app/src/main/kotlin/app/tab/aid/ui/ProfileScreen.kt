@@ -18,13 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Computer
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.automirrored.outlined.Logout
-import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,6 +43,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.tab.aid.data.AceIdApi
 import app.tab.aid.data.IdentityProfile
+import app.tab.aid.ui.components.AceIcons
 import app.tab.aid.ui.components.ActionTile
 import app.tab.aid.ui.components.ErrorPanel
 import app.tab.aid.ui.components.LabeledField
@@ -165,7 +159,7 @@ fun ProfileScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = androidx.compose.foundation.shape.RoundedCornerShape(0.dp),
                     ) {
-                        Icon(Icons.Outlined.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(AceIcons.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
                         Text("  Edit profile", color = colors.content)
                     }
                 }
@@ -173,7 +167,7 @@ fun ProfileScreen(
             item {
                 Spacer(Modifier.height(6.dp))
                 ActionTile(
-                    icon = Icons.Outlined.Lock,
+                    icon = AceIcons.Lock,
                     title = "Password & sign-in",
                     subtitle = "Change password and recovery options",
                     onClick = { onOpenWeb("/account/security") },
@@ -181,7 +175,7 @@ fun ProfileScreen(
             }
             item {
                 ActionTile(
-                    icon = Icons.Outlined.Computer,
+                    icon = AceIcons.Computer,
                     title = "Sessions & trusted devices",
                     subtitle = "Review and sign out devices",
                     onClick = { onOpenWeb("/account/devices") },
@@ -189,7 +183,7 @@ fun ProfileScreen(
             }
             item {
                 ActionTile(
-                    icon = Icons.Outlined.Shield,
+                    icon = AceIcons.Shield,
                     title = "Passkeys & two-factor authentication",
                     subtitle = "Manage stronger sign-in methods",
                     onClick = { onOpenWeb("/account/security") },
@@ -197,7 +191,7 @@ fun ProfileScreen(
             }
             item {
                 ActionTile(
-                    icon = Icons.Outlined.Delete,
+                    icon = AceIcons.Delete,
                     title = "Delete your ID",
                     subtitle = "Permanently remove your Ace ID",
                     danger = true,
@@ -211,7 +205,7 @@ fun ProfileScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(0.dp),
                 ) {
-                    Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(AceIcons.Logout, contentDescription = null, modifier = Modifier.size(18.dp))
                     Text("  Sign out", color = colors.content)
                 }
             }
