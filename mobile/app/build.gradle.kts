@@ -38,7 +38,9 @@ android {
 
         // AppAuth needs the redirect scheme as a manifest placeholder so its
         // RedirectUriReceiverActivity can be filtered on it.
-        manifestPlaceholders["appAuthRedirectScheme"] = "app.tab.aid"
+        // Derived from the redirect URI so the two can never drift apart.
+        manifestPlaceholders["appAuthRedirectScheme"] =
+            aceIdRedirectUri.substringBefore(":").ifBlank { "app.tab.aid" }
 
         buildConfigField("String", "ACEID_ISSUER", "\"$aceIdIssuer\"")
         buildConfigField("String", "ACEID_API_BASE_URL", "\"$aceIdApiBaseUrl\"")

@@ -183,11 +183,30 @@ class AuthRepository(
      */
     suspend fun signOut() = withContext(Dispatchers.IO) {
         val idToken = session.idToken()
+        val refreshToken = session.refreshToken()
+        val accessToken = session.accessToken()
+
+        // Revoke first so a stolen copy of either token stops working now,
+        // not when it eventually expires. Best effort: never blocks sign-out.
+        if (config.isClientConfigured) {
+            try {
+                val endpoint = loadDiscovery().discoveryDoc?.docJson
+                    ?.optString("revocation_endpoint")?.takeIf { it.isNotBlank() }
+                if (endpoint != null) {
+                    refreshToken?.let { revoke(endpoint, it, "refresh_token") }
+                    accessToken?.let { revoke(endpoint, it, "access_token") }
+                }
+            } catch (error: Exception) {
+                // Ignored on purpose: the local session is cleared below regardless.
+            }
+        }
+
         if (config.isClientConfigured && !idToken.isNullOrBlank()) {
             try {
+                // No post_logout_redirect_uri: the mobile client has none registered,
+                // and sending one makes the provider show an error page.
                 val request = EndSessionRequest.Builder(loadDiscovery())
                     .setIdTokenHint(idToken)
-                    .setPostLogoutRedirectUri(config.redirectUri)
                     .build()
                 val intent = service.getEndSessionRequestIntent(request)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -197,6 +216,24 @@ class AuthRepository(
             }
         }
         session.clearSession()
+    }
+
+    private fun revoke(endpoint: String, token: String, hint: String) {
+        val url = java.net.URL(endpoint)
+        if (url.protocol != "https" && url.host != "localhost" && url.host != "127.0.0.1") return
+        val connection = url.openConnection() as java.net.HttpURLConnection
+        try {
+            connection.requestMethod = "POST"
+            connection.connectTimeout = REVOKE_TIMEOUT_MILLIS
+            connection.readTimeout = REVOKE_TIMEOUT_MILLIS
+            connection.instanceFollowRedirects = false
+            connection.doOutput = true
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            connection.outputStream.use { it.write(revocationBody(config.clientId, token, hint).toByteArray()) }
+            connection.responseCode // Drain; any status is acceptable for best-effort revocation.
+        } finally {
+            connection.disconnect()
+        }
     }
 
     fun dispose() = service.dispose()
@@ -256,6 +293,7 @@ class AuthRepository(
 
     private companion object {
         const val EXPIRY_SKEW_MILLIS = 60_000L
+        const val REVOKE_TIMEOUT_MILLIS = 8_000
         const val DEFAULT_TOKEN_LIFETIME_MILLIS = 5 * 60 * 1000L
     }
 }
@@ -265,3 +303,9 @@ private val REJECTED_REFRESH_ERRORS = setOf("invalid_grant", "invalid_client", "
 /** True when the provider itself refused the refresh token, as opposed to a transport failure. */
 internal fun isRefreshRejected(error: String?): Boolean =
     error?.lowercase() in REJECTED_REFRESH_ERRORS
+
+/** Form body for RFC 7009 token revocation by a public client. */
+internal fun revocationBody(clientId: String, token: String, hint: String): String {
+    fun enc(value: String) = java.net.URLEncoder.encode(value, "UTF-8")
+    return "client_id=${enc(clientId)}&token=${enc(token)}&token_type_hint=${enc(hint)}"
+}
